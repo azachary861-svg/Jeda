@@ -2,6 +2,8 @@ import { notFound } from 'next/navigation';
 import { BookingForm } from '@/components/marketplace/booking-form';
 import { createClient } from '@/lib/supabase/server';
 
+export const dynamic = 'force-dynamic';
+
 export default async function PackageDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const supabase = await createClient();
