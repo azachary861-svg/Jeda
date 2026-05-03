@@ -33,7 +33,7 @@ function matchesPrefix(pathname: string, prefix: string): boolean {
 }
 
 export function isAdminLoginPath(pathname: string): boolean {
-  return pathname === '/dashboard/login';
+  return pathname === '/dashboard/login' || pathname === '/admin';
 }
 
 export function isClientLoginPath(pathname: string): boolean {
@@ -45,7 +45,7 @@ export function isRegisterPath(pathname: string): boolean {
 }
 
 export function isDriverLoginPath(pathname: string): boolean {
-  return pathname === '/driver/login';
+  return pathname === '/driver/login' || pathname === '/driver';
 }
 
 export function isPublicAuthPath(pathname: string): boolean {
@@ -65,7 +65,7 @@ export function isClientProtectedPath(pathname: string): boolean {
 }
 
 export function isDriverProtectedPath(pathname: string): boolean {
-  if (isDriverLoginPath(pathname)) {
+  if (pathname === '/driver' || pathname === '/driver/login') {
     return false;
   }
 
@@ -74,11 +74,11 @@ export function isDriverProtectedPath(pathname: string): boolean {
 
 export function getPortalLoginPath(portal: AuthPortal): Route {
   if (portal === 'admin') {
-    return '/dashboard/login';
+    return '/admin' as Route;
   }
 
   if (portal === 'driver') {
-    return '/driver/login';
+    return '/driver';
   }
 
   return '/login';

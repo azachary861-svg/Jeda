@@ -41,10 +41,10 @@ export async function signInWithEmail(email: string, password: string, portal: A
   }
 
   if (data.session) {
-    redirect(getPostLoginPath(portal, nextPath));
+    return { success: true, redirectTo: getPostLoginPath(portal, nextPath) };
   }
 
-  return { success: true };
+  return { success: true, redirectTo: getPostLoginPath(portal, nextPath) };
 }
 
 export async function signUpWithEmail(
@@ -103,7 +103,7 @@ export async function signInWithOAuth(provider: 'google' | 'github', portal: Aut
   }
 
   if (data.url) {
-    redirect(data.url as never);
+    return { url: data.url };
   }
 
   return { error: `Gagal membuka portal ${getPortalLoginPath(portal)}.` };

@@ -8,7 +8,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const adminResult = await requireAdmin();
 
   if (!adminResult.ok) {
-    redirect(adminResult.code === 'UNAUTHORIZED' ? '/dashboard/login' : '/packages');
+    redirect(adminResult.code === 'UNAUTHORIZED' ? '/admin' : '/packages');
   }
 
   const profile = adminResult.profile;

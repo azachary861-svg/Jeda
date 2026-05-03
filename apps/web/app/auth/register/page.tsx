@@ -66,7 +66,15 @@ export default function RegisterPage() {
     setOAuthLoading(provider);
 
     try {
-      await signInWithOAuth(provider, 'client');
+      const result = await signInWithOAuth(provider, 'client');
+
+      if (result?.error) {
+        setError(result.error);
+      } else if (result?.url) {
+        window.location.assign(result.url);
+      } else {
+        setError(`Failed to sign up with ${provider}`);
+      }
     } catch (err) {
       setError(`Failed to sign up with ${provider}`);
       console.error(err);

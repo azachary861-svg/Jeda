@@ -63,7 +63,7 @@ export async function middleware(request: NextRequest) {
     const wantsDriverRoute = isDriverProtectedPath(pathname);
 
     if (!user && wantsAdminRoute) {
-      const loginUrl = new URL('/dashboard/login', request.url);
+      const loginUrl = new URL('/admin', request.url);
       loginUrl.searchParams.set('next', nextPath);
       return NextResponse.redirect(loginUrl);
     }
@@ -75,7 +75,7 @@ export async function middleware(request: NextRequest) {
     }
 
     if (!user && wantsDriverRoute) {
-      const loginUrl = new URL('/driver/login', request.url);
+      const loginUrl = new URL('/driver', request.url);
       loginUrl.searchParams.set('next', nextPath);
       return NextResponse.redirect(loginUrl);
     }
@@ -108,10 +108,10 @@ export async function middleware(request: NextRequest) {
       } catch (error) {
         console.error('Middleware auth check failed:', error);
         if (wantsAdminRoute) {
-          return NextResponse.redirect(new URL('/dashboard/login', request.url));
+          return NextResponse.redirect(new URL('/admin', request.url));
         }
         if (wantsDriverRoute) {
-          return NextResponse.redirect(new URL('/driver/login', request.url));
+          return NextResponse.redirect(new URL('/driver', request.url));
         }
         if (wantsAdminLogin || wantsClientAuth || wantsDriverLogin) {
           return supabaseResponse;

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import type { Route } from 'next';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import { signInWithEmail, signInWithOAuth } from '@/actions/auth';
 import type { AuthPortal } from '@/lib/auth/portal';
@@ -15,6 +15,7 @@ type PortalLoginFormProps = {
 };
 
 export function PortalLoginForm({ portal, title, description, badgeLabel }: PortalLoginFormProps) {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const nextPath = searchParams.get('next');
   const queryError = searchParams.get('error') ?? '';
@@ -65,6 +66,8 @@ export function PortalLoginForm({ portal, title, description, badgeLabel }: Port
       const result = await signInWithEmail(email, password, portal, nextPath);
       if (result?.error) {
         setError(result.error);
+      } else if (result?.redirectTo) {
+        router.replace(result.redirectTo as Route);
       }
     } catch {
       setError('Terjadi kesalahan saat mencoba masuk.');
@@ -78,7 +81,15 @@ export function PortalLoginForm({ portal, title, description, badgeLabel }: Port
     setOAuthLoading(provider);
 
     try {
-      await signInWithOAuth(provider, portal, nextPath);
+      const result = await signInWithOAuth(provider, portal, nextPath);
+
+      if (result?.error) {
+        setError(result.error);
+      } else if (result?.url) {
+        window.location.assign(result.url);
+      } else {
+        setError(`Gagal masuk dengan ${provider}.`);
+      }
     } catch {
       setError(`Gagal masuk dengan ${provider}.`);
     } finally {
