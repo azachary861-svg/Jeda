@@ -84,24 +84,37 @@ export async function middleware(request: NextRequest) {
   }
 
   if (user && (wantsAdminRoute || wantsAdminLogin || wantsClientAuth || wantsDriverRoute || wantsDriverLogin)) {
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .maybeSingle();
+    try {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .maybeSingle();
 
-    const homePath = getPortalHomePath(isAdminRole(profile?.role) ? 'admin' : isDriverRole(profile?.role) ? 'driver' : 'client');
+      const homePath = getPortalHomePath(isAdminRole(profile?.role) ? 'admin' : isDriverRole(profile?.role) ? 'driver' : 'client');
 
-    if (wantsAdminLogin || wantsClientAuth || wantsDriverLogin) {
-      return NextResponse.redirect(new URL(homePath, request.url));
-    }
+      if (wantsAdminLogin || wantsClientAuth || wantsDriverLogin) {
+        return NextResponse.redirect(new URL(homePath, request.url));
+      }
 
-    if (wantsAdminRoute && !isAdminRole(profile?.role)) {
-      return NextResponse.redirect(new URL('/packages', request.url));
-    }
+      if (wantsAdminRoute && !isAdminRole(profile?.role)) {
+        return NextResponse.redirect(new URL('/packages', request.url));
+      }
 
-    if (wantsDriverRoute && !isDriverRole(profile?.role)) {
-      return NextResponse.redirect(new URL('/packages', request.url));
+      if (wantsDriverRoute && !isDriverRole(profile?.role)) {
+        return NextResponse.redirect(new URL('/packages', request.url));
+      }
+    } catch (error) {
+      console.error('Middleware auth check failed:', error);
+      if (wantsAdminRoute) {
+        return NextResponse.redirect(new URL('/dashboard/login', request.url));
+      }
+      if (wantsDriverRoute) {
+        return NextResponse.redirect(new URL('/driver/login', request.url));
+      }
+      if (wantsAdminLogin || wantsClientAuth || wantsDriverLogin) {
+        return supabaseResponse;
+      }
     }
   }
 
