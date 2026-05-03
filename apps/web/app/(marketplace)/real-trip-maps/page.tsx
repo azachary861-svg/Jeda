@@ -1,6 +1,5 @@
 import { createClient, isSupabaseConfigured } from '@/lib/supabase/server';
 import { RealTripMapLive } from '@/components/marketplace/real-trip-map-live';
-import { redirect } from 'next/navigation';
 
 export const dynamic = 'force-dynamic';
 
@@ -28,15 +27,9 @@ export default async function RealTripMapsPage() {
     );
   }
 
-  const { data: userData } = await supabase.auth.getUser();
-  if (!userData.user) {
-    redirect('/login?next=/real-trip-maps');
-  }
-
   const { data: activeBookings, error: bookingError } = await supabase
     .from('bookings')
     .select('id, booking_code, status, trip_status, trip_date')
-    .eq('client_id', userData.user.id)
     .in('status', ['confirmed', 'assigned', 'on_trip'])
     .order('trip_date', { ascending: true })
     .limit(10);
@@ -78,7 +71,7 @@ export default async function RealTripMapsPage() {
 
       {!hasError && activeBookingIds.length === 0 ? (
         <div className="rounded-lg border bg-white p-5 text-sm text-slate-600">
-          Anda belum memiliki booking aktif dengan driver yang dapat dipantau.
+          Belum ada booking aktif dengan lokasi driver yang dapat dipantau.
         </div>
       ) : (
         <div className="space-y-3">

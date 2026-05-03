@@ -11,6 +11,14 @@ function readParam(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value;
 }
 
+function readNumberParam(value: string | string[] | undefined) {
+  const raw = readParam(value);
+  if (!raw || raw.trim() === '') return null;
+
+  const parsed = Number(raw);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
 function packageEmoji(destination: string, name: string) {
   const source = `${destination} ${name}`.toLowerCase();
 
@@ -40,8 +48,8 @@ export default async function PackagesPage({ searchParams }: PackagesPageProps) 
   const q = (readParam(params.q) ?? '').trim();
   const destination = (readParam(params.destination) ?? '').trim();
   const sort = readParam(params.sort) ?? 'newest';
-  const minPrice = Number(readParam(params.minPrice) ?? '');
-  const maxPrice = Number(readParam(params.maxPrice) ?? '');
+  const minPrice = readNumberParam(params.minPrice);
+  const maxPrice = readNumberParam(params.maxPrice);
 
   let destinations: Array<{ destination: string }> = [];
   let packages: Array<{
@@ -80,11 +88,11 @@ export default async function PackagesPage({ searchParams }: PackagesPageProps) 
         packageQuery = packageQuery.eq('destination', destination);
       }
 
-      if (Number.isFinite(minPrice)) {
+      if (minPrice !== null) {
         packageQuery = packageQuery.gte('base_price', minPrice);
       }
 
-      if (Number.isFinite(maxPrice)) {
+      if (maxPrice !== null) {
         packageQuery = packageQuery.lte('base_price', maxPrice);
       }
 
@@ -149,7 +157,7 @@ export default async function PackagesPage({ searchParams }: PackagesPageProps) 
             </select>
             <input
               name="minPrice"
-              defaultValue={Number.isFinite(minPrice) ? String(minPrice) : ''}
+              defaultValue={minPrice !== null ? String(minPrice) : ''}
               placeholder="Harga min"
               className="rounded-lg border border-white/10 bg-transparent px-3 py-2 text-sm text-white placeholder:text-emerald-100/50"
             />
@@ -158,7 +166,7 @@ export default async function PackagesPage({ searchParams }: PackagesPageProps) 
             </button>
             <input
               name="maxPrice"
-              defaultValue={Number.isFinite(maxPrice) ? String(maxPrice) : ''}
+              defaultValue={maxPrice !== null ? String(maxPrice) : ''}
               placeholder="Harga max"
               className="rounded-lg border border-white/10 bg-transparent px-3 py-2 text-sm text-white placeholder:text-emerald-100/50 md:col-span-2"
             />

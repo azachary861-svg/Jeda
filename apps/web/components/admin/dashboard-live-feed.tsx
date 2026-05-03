@@ -21,13 +21,30 @@ const FEED_LIMIT = 20;
 
 export function DashboardLiveFeed({ initialFeed }: DashboardLiveFeedProps) {
   const [feed, setFeed] = useState<FeedItem[]>(initialFeed);
-  const supabase = useMemo(() => createClient(), []);
+  const [realtimeEnabled, setRealtimeEnabled] = useState(true);
 
   const appendFeed = useCallback((item: FeedItem) => {
     setFeed((current) => [item, ...current].slice(0, FEED_LIMIT));
   }, []);
 
   useEffect(() => {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+    if (!supabaseUrl || !supabaseAnonKey || !supabaseUrl.includes('supabase.co')) {
+      setRealtimeEnabled(false);
+      return;
+    }
+
+    let supabase: ReturnType<typeof createClient>;
+
+    try {
+      supabase = createClient();
+    } catch {
+      setRealtimeEnabled(false);
+      return;
+    }
+
     const bookingInsertChannel = supabase
       .channel('hq-live-feed-booking-insert')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'bookings' }, (payload) => {
@@ -83,13 +100,15 @@ export function DashboardLiveFeed({ initialFeed }: DashboardLiveFeedProps) {
       void supabase.removeChannel(bookingUpdateChannel);
       void supabase.removeChannel(notificationChannel);
     };
-  }, [appendFeed, supabase]);
+  }, [appendFeed]);
 
   return (
     <section className="mt-4 overflow-hidden rounded-lg border border-slate-200 bg-white">
       <div className="flex items-center justify-between border-b border-slate-200 px-4 py-2.5">
         <h2 className="text-sm font-semibold text-slate-900">Live ops feed</h2>
-        <span className="text-[10px] text-emerald-700">Lihat semua</span>
+        <span className={`text-[10px] ${realtimeEnabled ? 'text-emerald-700' : 'text-amber-700'}`}>
+          {realtimeEnabled ? 'Realtime aktif' : 'Realtime nonaktif'}
+        </span>
       </div>
       {feed.length === 0 ? <p className="px-4 py-3 text-sm text-slate-500">Belum ada aktivitas real-time.</p> : null}
       <div>
