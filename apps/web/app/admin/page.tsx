@@ -1,10 +1,11 @@
+import { Suspense } from 'react';
 import { redirect } from 'next/navigation';
 import { requireAdmin } from '@/lib/auth/require-admin';
 import { PortalLoginForm } from '@/components/shared/portal-login-form';
 
 export const dynamic = 'force-dynamic';
 
-export default async function AdminEntryPage() {
+async function AdminLoginWrapper() {
   const auth = await requireAdmin();
 
   if (!auth.ok) {
@@ -23,4 +24,12 @@ export default async function AdminEntryPage() {
   }
 
   redirect('/dashboard');
+}
+
+export default function AdminEntryPage() {
+  return (
+    <Suspense fallback={null}>
+      <AdminLoginWrapper />
+    </Suspense>
+  );
 }
