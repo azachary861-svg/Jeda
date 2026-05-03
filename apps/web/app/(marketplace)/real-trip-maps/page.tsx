@@ -2,6 +2,8 @@ import { createClient } from '@/lib/supabase/server';
 import { RealTripMapLive } from '@/components/marketplace/real-trip-map-live';
 import { redirect } from 'next/navigation';
 
+export const dynamic = 'force-dynamic';
+
 export default async function RealTripMapsPage() {
   const supabase = await createClient();
 

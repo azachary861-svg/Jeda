@@ -2,6 +2,8 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 
+export const dynamic = 'force-dynamic';
+
 function statusBadge(status: string) {
   if (status === 'on_trip') return 'border-emerald-200 bg-emerald-50 text-emerald-700';
   if (status === 'completed') return 'border-lime-200 bg-lime-50 text-lime-700';

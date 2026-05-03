@@ -2,6 +2,8 @@ import { redirect } from 'next/navigation';
 import { requireDriver } from '@/lib/auth/require-driver';
 import { DriverAppShell } from '@/components/driver/driver-app-shell';
 
+export const dynamic = 'force-dynamic';
+
 export default async function DriverAppPage() {
   const auth = await requireDriver();
 
