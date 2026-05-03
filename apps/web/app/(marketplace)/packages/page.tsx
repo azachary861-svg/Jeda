@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { createClient } from '@/lib/supabase/server';
+import { createClient, isSupabaseConfigured } from '@/lib/supabase/server';
 
 export const dynamic = 'force-dynamic';
 
@@ -43,44 +43,70 @@ export default async function PackagesPage({ searchParams }: PackagesPageProps) 
   const minPrice = Number(readParam(params.minPrice) ?? '');
   const maxPrice = Number(readParam(params.maxPrice) ?? '');
 
-  const supabase = await createClient();
+  let destinations: Array<{ destination: string }> = [];
+  let packages: Array<{
+    id: string;
+    name: string;
+    slug: string;
+    short_description: string | null;
+    base_price: number;
+    duration_days: number;
+    destination: string;
+  }> = [];
+  let error: { message: string } | null = null;
 
-  const { data: destinations } = await supabase
-    .from('packages')
-    .select('destination')
-    .eq('is_active', true)
-    .order('destination', { ascending: true });
+  if (isSupabaseConfigured()) {
+    try {
+      const supabase = await createClient();
 
-  let packageQuery = supabase
-    .from('packages')
-    .select('id,name,slug,short_description,base_price,duration_days,destination')
-    .eq('is_active', true);
+      const { data: destinationData } = await supabase
+        .from('packages')
+        .select('destination')
+        .eq('is_active', true)
+        .order('destination', { ascending: true });
 
-  if (q) {
-    packageQuery = packageQuery.or(`name.ilike.%${q}%,destination.ilike.%${q}%`);
-  }
+      destinations = destinationData ?? [];
 
-  if (destination) {
-    packageQuery = packageQuery.eq('destination', destination);
-  }
+      let packageQuery = supabase
+        .from('packages')
+        .select('id,name,slug,short_description,base_price,duration_days,destination')
+        .eq('is_active', true);
 
-  if (Number.isFinite(minPrice)) {
-    packageQuery = packageQuery.gte('base_price', minPrice);
-  }
+      if (q) {
+        packageQuery = packageQuery.or(`name.ilike.%${q}%,destination.ilike.%${q}%`);
+      }
 
-  if (Number.isFinite(maxPrice)) {
-    packageQuery = packageQuery.lte('base_price', maxPrice);
-  }
+      if (destination) {
+        packageQuery = packageQuery.eq('destination', destination);
+      }
 
-  if (sort === 'price_asc') {
-    packageQuery = packageQuery.order('base_price', { ascending: true });
-  } else if (sort === 'price_desc') {
-    packageQuery = packageQuery.order('base_price', { ascending: false });
+      if (Number.isFinite(minPrice)) {
+        packageQuery = packageQuery.gte('base_price', minPrice);
+      }
+
+      if (Number.isFinite(maxPrice)) {
+        packageQuery = packageQuery.lte('base_price', maxPrice);
+      }
+
+      if (sort === 'price_asc') {
+        packageQuery = packageQuery.order('base_price', { ascending: true });
+      } else if (sort === 'price_desc') {
+        packageQuery = packageQuery.order('base_price', { ascending: false });
+      } else {
+        packageQuery = packageQuery.order('created_at', { ascending: false });
+      }
+
+      const { data: packageData, error: packageError } = await packageQuery;
+
+      packages = packageData ?? [];
+      error = packageError ? { message: packageError.message } : null;
+    } catch (caughtError) {
+      error = { message: caughtError instanceof Error ? caughtError.message : 'Gagal memuat paket.' };
+    }
   } else {
-    packageQuery = packageQuery.order('created_at', { ascending: false });
+    error = { message: 'Supabase belum terkonfigurasi di server deployment.' };
   }
 
-  const { data: packages, error } = await packageQuery;
   const safePackages = packages ?? [];
 
   const destinationOptions = Array.from(new Set((destinations ?? []).map((item) => item.destination)));
@@ -155,7 +181,9 @@ export default async function PackagesPage({ searchParams }: PackagesPageProps) 
         </div>
 
         {error ? (
-          <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">Gagal memuat paket. Silakan refresh halaman.</div>
+          <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+            {error.message || 'Gagal memuat paket. Silakan refresh halaman.'}
+          </div>
         ) : null}
 
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">

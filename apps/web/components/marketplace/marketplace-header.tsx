@@ -64,7 +64,7 @@ export function MarketplaceHeader({ isLoggedIn, isAdmin, isDriver, userInitial }
                 </Link>
               ) : null}
               {isDriver ? (
-                <Link href="/driver" className="rounded-md border border-slate-200 px-3 py-1.5 text-xs text-slate-700">
+                <Link href={'/driver/app' as Route} className="rounded-md border border-slate-200 px-3 py-1.5 text-xs text-slate-700">
                   Driver App
                 </Link>
               ) : null}

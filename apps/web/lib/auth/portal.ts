@@ -18,7 +18,7 @@ export const ADMIN_ROUTE_PREFIXES = [
 ] as const;
 
 export const CLIENT_PROTECTED_ROUTE_PREFIXES = ['/my-bookings', '/checkout', '/real-trip-maps'] as const;
-export const DRIVER_PROTECTED_ROUTE_PREFIXES = ['/driver'] as const;
+export const DRIVER_PROTECTED_ROUTE_PREFIXES = ['/driver/app'] as const;
 
 export function isAdminRole(role: string | null | undefined): boolean {
   return role === 'super_admin' || role === 'regional_admin';
@@ -90,7 +90,7 @@ export function getPortalHomePath(portal: AuthPortal): Route {
   }
 
   if (portal === 'driver') {
-    return '/driver';
+    return '/driver/app' as Route;
   }
 
   return '/packages';

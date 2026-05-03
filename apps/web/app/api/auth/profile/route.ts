@@ -1,8 +1,12 @@
-import { createClient } from '@/lib/supabase/server';
+import { createClient, isSupabaseConfigured } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 
 export async function GET() {
   try {
+    if (!isSupabaseConfigured()) {
+      return NextResponse.json({ user: null, role: null });
+    }
+
     const supabase = await createClient();
     const {
       data: { user },
@@ -26,9 +30,6 @@ export async function GET() {
     });
   } catch (error) {
     console.error('Auth profile API error:', error);
-    return NextResponse.json(
-      { user: null, role: null },
-      { status: 500 }
-    );
+    return NextResponse.json({ user: null, role: null });
   }
 }

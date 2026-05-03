@@ -78,10 +78,10 @@ export function HomeContent() {
             Portal ini khusus super admin dan regional admin untuk operasional lapangan, dispatch, CRM, finance, dan analytics.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
-            <Link className="rounded-lg bg-white px-4 py-2 font-medium text-slate-950" href={(isAdmin ? '/dashboard' : '/dashboard/login') as Route}>
+            <Link className="rounded-lg bg-white px-4 py-2 font-medium text-slate-950" href={(isAdmin ? '/dashboard' : '/admin') as Route}>
               {isAdmin ? 'Lanjut ke dashboard' : 'Masuk sebagai admin'}
             </Link>
-            <Link className="rounded-lg border border-white/20 px-4 py-2 text-white" href="/dashboard/login">
+            <Link className="rounded-lg border border-white/20 px-4 py-2 text-white" href="/admin">
               Portal admin
             </Link>
           </div>
@@ -98,7 +98,7 @@ export function HomeContent() {
             Portal ini untuk driver lapangan: jadwal trip, upload dokumentasi live, chat klien, dan status GPS real-time.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
-            <Link className="rounded-lg bg-slate-900 px-4 py-2 text-white" href={(isDriver ? '/driver' : '/driver/login') as Route}>
+            <Link className="rounded-lg bg-slate-900 px-4 py-2 text-white" href={(isDriver ? '/driver/app' : '/driver') as Route}>
               {isDriver ? 'Lanjut ke driver app' : 'Masuk sebagai driver'}
             </Link>
           </div>
