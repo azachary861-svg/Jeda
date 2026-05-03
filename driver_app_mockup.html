@@ -1,0 +1,380 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+:root{--bg:#f4f6f9;--bg2:#fff;--bg3:#eef0f4;--border:#e2e5ea;--text:#111827;--text2:#6b7280;--text3:#9ca3af;--green:#0F6E56;--green2:#1D9E75;--green3:#dcf5ed;--green4:#064e3b;--dark:#081f1d}
+body{background:var(--bg);font-size:13px;color:var(--text);min-height:100%}
+/* WRAPPER — mobile phone style */
+.phone-wrap{display:flex;gap:20px;padding:16px;align-items:flex-start;justify-content:center}
+.phone{width:340px;background:var(--bg2);border-radius:20px;box-shadow:0 8px 40px rgba(0,0,0,.12);overflow:hidden;border:1px solid var(--border);flex-shrink:0}
+.phone-header{background:var(--dark);padding:14px 16px 12px;display:flex;align-items:center;gap:10px}
+.ph-av{width:36px;height:36px;border-radius:50%;background:#1D9E75;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0}
+.ph-name{font-size:14px;font-weight:600;color:#fff}
+.ph-hub{font-size:10px;color:rgba(255,255,255,.5);margin-top:1px}
+.ph-gps{margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;gap:3px}
+.gps-toggle{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:4px 10px;cursor:pointer}
+.gps-dot{width:7px;height:7px;border-radius:50%;background:#4ade80;animation:gp 1.5s infinite}
+@keyframes gp{0%,100%{opacity:1}50%{opacity:.3}}
+.gps-txt{font-size:10px;color:#4ade80;font-weight:600}
+/* BOTTOM NAV */
+.bottom-nav{background:var(--bg2);border-top:1px solid var(--border);padding:10px 0 8px;display:flex}
+.bn-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;color:var(--text3);transition:color .12s}
+.bn-item.active{color:var(--green)}
+.bn-icon{font-size:18px}
+.bn-label{font-size:9px;font-weight:500}
+.bn-badge{position:absolute;top:-3px;right:2px;width:14px;height:14px;border-radius:50%;background:#E24B4A;color:#fff;font-size:8px;font-weight:700;display:flex;align-items:center;justify-content:center}
+/* SCROLL CONTENT */
+.phone-content{height:480px;overflow-y:auto;background:var(--bg)}
+.phone-content::-webkit-scrollbar{width:0}
+/* CARDS */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;margin:10px;padding:14px}
+.card-title{font-size:12px;font-weight:700;color:var(--text);margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
+.card-action{font-size:10px;color:var(--green);font-weight:500}
+/* BADGE */
+.b{display:inline-flex;padding:2px 8px;border-radius:5px;font-size:9px;font-weight:700}
+.bon{background:#dcf5ed;color:#064e3b}.bdone{background:#EAF3DE;color:#3B6D11}
+.bpend{background:#FEF3C7;color:#92400E}.bcancel{background:#FEE2E2;color:#991B1B}
+.bblue{background:#DBEAFE;color:#1E40AF}.borg{background:#FEE2E2;color:#9A3412}
+/* TRIP CARD */
+.trip-card{background:var(--dark);border-radius:14px;margin:10px;padding:14px}
+.tc-label{font-size:9px;color:rgba(255,255,255,.4);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:5px}
+.tc-title{font-size:16px;font-weight:700;color:#fff;margin-bottom:4px}
+.tc-meta{font-size:11px;color:rgba(255,255,255,.55);margin-bottom:12px}
+.tc-info{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.tci{background:rgba(255,255,255,.07);border-radius:8px;padding:8px 10px}
+.tci-label{font-size:9px;color:rgba(255,255,255,.35);margin-bottom:2px}
+.tci-val{font-size:12px;font-weight:600;color:#fff}
+/* STAT MINI */
+.stat-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px}
+.sm{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:12px}
+.sm-val{font-size:18px;font-weight:700;color:var(--text)}
+.sm-lbl{font-size:10px;color:var(--text2);margin-top:2px}
+.sm-d{font-size:9px;margin-top:4px;color:var(--green)}
+/* ACTION BTN */
+.action-btn{width:100%;border:none;border-radius:10px;padding:12px;font-size:13px;font-weight:600;cursor:pointer;margin-bottom:8px;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-primary{background:var(--green);color:#fff}
+.btn-primary:active{background:var(--green4)}
+.btn-secondary{background:var(--bg3);color:var(--text)}
+.btn-danger{background:#FEE2E2;color:#991B1B}
+/* UPLOAD ZONE */
+.upload-zone{border:1.5px dashed var(--border);border-radius:12px;padding:20px;text-align:center;background:var(--bg3);cursor:pointer;margin-bottom:10px}
+.upload-zone:hover{border-color:var(--green2);background:var(--green3)}
+/* PHOTO GRID */
+.photo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px}
+.ph-item{aspect-ratio:1;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:22px;position:relative;overflow:hidden}
+.ph-del{position:absolute;top:3px;right:3px;width:16px;height:16px;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;font-size:9px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+/* PROGRESS BAR */
+.prog-bar{height:6px;background:var(--bg3);border-radius:3px;margin-top:6px}
+.prog-fill{height:6px;border-radius:3px;background:var(--green2);transition:width .3s}
+/* EARNINGS CHART */
+.earn-bars{display:flex;align-items:flex-end;gap:4px;height:60px;margin-bottom:4px}
+.eb{flex:1;border-radius:3px 3px 0 0;min-width:0}
+.eb-label{font-size:9px;color:var(--text3);text-align:center}
+/* LIST ITEM */
+.list-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.list-item:last-child{border-bottom:none}
+.li-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+/* NOTIF */
+.notif-item{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.notif-item:last-child{border-bottom:none}
+.ni-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:4px}
+/* PAGE */
+.dpage{display:none}.dpage.active{display:block}
+/* CHECKLIST */
+.check-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px}
+.check-item:last-child{border-bottom:none}
+.checkbox{width:18px;height:18px;border-radius:5px;border:1.5px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.checkbox.checked{background:var(--green);border-color:var(--green);color:#fff;font-size:10px}
+/* INFO PANEL */
+.info-panel{background:var(--green3);border:1px solid rgba(29,158,117,.2);border-radius:10px;padding:10px 12px;margin-bottom:8px;font-size:11px;color:var(--green4)}
+/* TOGGLE */
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)}
+.toggle-row:last-child{border-bottom:none}
+.toggle{width:36px;height:20px;border-radius:10px;background:var(--green2);position:relative;cursor:pointer}
+.toggle-knob{width:16px;height:16px;border-radius:50%;background:#fff;position:absolute;top:2px;right:2px;transition:right .2s}
+.toggle.off{background:var(--border)}
+.toggle.off .toggle-knob{right:18px}
+</style>
+</head>
+<body>
+
+<div class="phone-wrap">
+
+<!-- PHONE 1: DRIVER APP -->
+<div>
+  <div style="font-size:11px;font-weight:600;color:var(--text2);text-align:center;margin-bottom:8px;letter-spacing:.04em">📱 DRIVER APP — Pak Budi</div>
+  <div class="phone">
+    <div class="phone-header">
+      <div class="ph-av">PB</div>
+      <div>
+        <div class="ph-name">Pak Budi</div>
+        <div class="ph-hub">Driver · Jogja Hub</div>
+      </div>
+      <div class="ph-gps">
+        <div class="gps-toggle"><div class="gps-dot"></div><div class="gps-txt">GPS ON</div></div>
+        <div style="font-size:9px;color:rgba(255,255,255,.35);text-align:right">Terakhir update: 12 dtk lalu</div>
+      </div>
+    </div>
+
+    <div class="phone-content">
+
+      <!-- HOME PAGE -->
+      <div class="dpage active" id="dp-home">
+        <!-- ACTIVE TRIP -->
+        <div class="trip-card">
+          <div class="tc-label"><div style="width:6px;height:6px;border-radius:50%;background:#4ade80;animation:gp 1s infinite"></div>TRIP AKTIF SEKARANG</div>
+          <div class="tc-title">Bromo Sunrise Experience</div>
+          <div class="tc-meta">#TN-0441 · 3 pax · Sari Dewi & keluarga</div>
+          <div class="tc-info">
+            <div class="tci"><div class="tci-label">Pickup pukul</div><div class="tci-val">03:00 WIB</div></div>
+            <div class="tci"><div class="tci-label">Lokasi sekarang</div><div class="tci-val">Penanjakan</div></div>
+            <div class="tci"><div class="tci-label">Progress trip</div><div class="tci-val">Di lokasi ✓</div></div>
+            <div class="tci"><div class="tci-label">Estimasi selesai</div><div class="tci-val">15:00 WIB</div></div>
+          </div>
+          <div class="prog-bar" style="margin-top:10px"><div class="prog-fill" style="width:60%"></div></div>
+          <div style="font-size:9px;color:rgba(255,255,255,.4);margin-top:4px">60% selesai · Tahap 3 dari 5</div>
+        </div>
+
+        <!-- QUICK ACTIONS -->
+        <div style="margin:0 10px 0">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+            <button class="action-btn btn-primary" style="margin:0;font-size:12px;border-radius:10px;padding:10px" onclick="showDPage('upload')">📸 Upload Foto/Video</button>
+            <button class="action-btn btn-secondary" style="margin:0;font-size:12px;border-radius:10px;padding:10px" onclick="showDPage('trip')">📋 Detail Trip</button>
+          </div>
+          <button class="action-btn btn-secondary" style="font-size:12px;padding:10px" onclick="showDPage('chat')">💬 Chat dengan Klien & HQ</button>
+        </div>
+
+        <!-- TODAY STATS -->
+        <div class="stat-row">
+          <div class="sm"><div class="sm-val">Rp 185rb</div><div class="sm-lbl">Pendapatan hari ini</div><div class="sm-d">+komisi trip</div></div>
+          <div class="sm"><div class="sm-val">1/2</div><div class="sm-lbl">Trip hari ini selesai</div><div class="sm-d">1 lagi jam 19:00</div></div>
+        </div>
+
+        <!-- TRIP HARI INI -->
+        <div class="card">
+          <div class="card-title">Jadwal hari ini <span class="card-action">Lihat semua</span></div>
+          <div class="list-item"><div class="li-icon" style="background:#dcf5ed">🌄</div><div style="flex:1"><div style="font-size:12px;font-weight:600">#TN-0441 · Bromo</div><div style="font-size:10px;color:var(--text2)">03:00 · 3 pax · Rp 185.000</div></div><span class="b bon">On trip</span></div>
+          <div class="list-item"><div class="li-icon" style="background:#FEF3C7">🏛️</div><div style="flex:1"><div style="font-size:12px;font-weight:600">#TN-0455 · Jogja Heritage</div><div style="font-size:10px;color:var(--text2)">19:00 · 2 pax · Rp 120.000</div></div><span class="b bpend">Upcoming</span></div>
+        </div>
+      </div>
+
+      <!-- UPLOAD PAGE -->
+      <div class="dpage" id="dp-upload">
+        <div style="padding:10px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border);background:var(--bg2)">
+          <span style="cursor:pointer;color:var(--text2)" onclick="showDPage('home')">←</span>
+          <span style="font-size:13px;font-weight:700">Upload Dokumentasi</span>
+          <span style="font-size:10px;color:var(--text2);margin-left:auto">#TN-0441</span>
+        </div>
+        <div style="padding:10px">
+          <div class="info-panel">📍 Foto & video kamu akan tampil di Real Trip Maps dan bisa dilihat klien secara real-time!</div>
+          <div class="upload-zone" onclick="this.querySelector('span').textContent='✓ 3 foto dipilih!'">
+            <div style="font-size:28px;margin-bottom:6px">📷</div>
+            <div style="font-size:12px;font-weight:600;color:var(--text)">Tap untuk foto / video</div>
+            <div style="font-size:10px;color:var(--text2);margin-top:3px">Maks 50MB per file</div>
+            <span style="display:none"></span>
+          </div>
+          <!-- Caption -->
+          <div style="margin-bottom:10px">
+            <div style="font-size:11px;font-weight:600;margin-bottom:4px;color:var(--text)">Caption (akan terlihat klien)</div>
+            <textarea style="width:100%;border:1px solid var(--border);border-radius:8px;padding:8px;font-size:12px;resize:none;height:60px;outline:none;color:var(--text)" placeholder="Ceritakan kondisi di lapangan...">Sunrise-nya luar biasa pagi ini! Klien senang banget 🙏</textarea>
+          </div>
+          <!-- Photos already uploaded -->
+          <div style="font-size:11px;font-weight:600;margin-bottom:6px;color:var(--text)">Sudah diupload (15 foto)</div>
+          <div class="photo-grid">
+            <div class="ph-item" style="background:linear-gradient(135deg,#1a3a2a,#2d5a3a)"><span style="font-size:24px">🌄</span><div class="ph-del">×</div></div>
+            <div class="ph-item" style="background:linear-gradient(135deg,#0a1a1a,#1a2a2a)"><span style="font-size:24px">🌿</span><div class="ph-del">×</div></div>
+            <div class="ph-item" style="background:linear-gradient(135deg,#1a1a2a,#2a2a3a)"><span style="font-size:24px">⛰️</span><div class="ph-del">×</div></div>
+            <div class="ph-item" style="background:linear-gradient(135deg,#2a1a0a,#3a2a1a)"><span style="font-size:24px">🚙</span><div class="ph-del">×</div></div>
+            <div class="ph-item" style="background:linear-gradient(135deg,#0a2a1a,#1a3a2a)"><span style="font-size:24px">🌅</span><div class="ph-del">×</div></div>
+            <div class="ph-item" style="background:var(--bg3);cursor:pointer;border:1.5px dashed var(--border)"><span style="font-size:20px;color:var(--text3)">+</span></div>
+          </div>
+          <button class="action-btn btn-primary" style="margin-top:12px">📤 Upload ke Real Trip Maps</button>
+        </div>
+      </div>
+
+      <!-- TRIP DETAIL PAGE -->
+      <div class="dpage" id="dp-trip">
+        <div style="padding:10px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border);background:var(--bg2)">
+          <span style="cursor:pointer;color:var(--text2)" onclick="showDPage('home')">←</span>
+          <span style="font-size:13px;font-weight:700">Detail Trip</span>
+        </div>
+        <div style="padding:10px">
+          <!-- Client info -->
+          <div class="card" style="margin:0 0 10px">
+            <div class="card-title">Info Klien</div>
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+              <div style="width:36px;height:36px;border-radius:50%;background:#E1F5EE;color:#085041;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0">SD</div>
+              <div><div style="font-size:13px;font-weight:700">Sari Dewi</div><div style="font-size:11px;color:var(--text2)">3 pax · Booking pertama</div></div>
+              <button style="margin-left:auto;background:var(--green3);color:var(--green4);border:none;border-radius:8px;padding:6px 12px;font-size:11px;font-weight:600;cursor:pointer" onclick="showDPage('chat')">💬 Chat</button>
+            </div>
+            <div style="background:var(--bg3);border-radius:8px;padding:10px;font-size:11px">
+              <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="color:var(--text2)">Pickup</span><span style="font-weight:600">Hotel Amaris Malang</span></div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="color:var(--text2)">HP klien</span><span style="font-weight:600">0812-3456-7890</span></div>
+              <div style="display:flex;justify-content:space-between"><span style="color:var(--text2)">Catatan</span><span style="font-weight:600;max-width:150px;text-align:right">Ada lansia, jalan pelan-pelan</span></div>
+            </div>
+          </div>
+
+          <!-- CHECKLIST -->
+          <div class="card" style="margin:0 0 10px">
+            <div class="card-title">Checklist Driver</div>
+            <div class="check-item"><div class="checkbox checked">✓</div><span>Jemput klien di titik pickup</span></div>
+            <div class="check-item"><div class="checkbox checked">✓</div><span>Perjalanan ke Penanjakan</span></div>
+            <div class="check-item"><div class="checkbox checked" style="background:#1D9E75;border-color:#1D9E75">✓</div><span style="font-weight:600;color:var(--green4)">Foto sunrise di Penanjakan</span></div>
+            <div class="check-item"><div class="checkbox"></div><span style="color:var(--text2)">Naik jeep ke kawah Bromo</span></div>
+            <div class="check-item"><div class="checkbox"></div><span style="color:var(--text2)">Antar klien kembali ke hotel</span></div>
+          </div>
+
+          <!-- Route -->
+          <div class="card" style="margin:0">
+            <div class="card-title">Rute perjalanan</div>
+            <div style="font-size:11px;color:var(--text2);line-height:2">
+              📍 Hotel Amaris Malang → 🛣️ Tol Malang → ⛰️ Penanjakan (sunrise) → 🌋 Kawah Bromo → 📍 Hotel Amaris Malang
+            </div>
+            <button class="action-btn btn-secondary" style="margin-top:10px;font-size:12px;padding:9px">🗺️ Buka Google Maps</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- EARNINGS PAGE -->
+      <div class="dpage" id="dp-earnings">
+        <div style="padding:10px 10px 4px;background:var(--bg2);border-bottom:1px solid var(--border)">
+          <div style="font-size:14px;font-weight:700">Pendapatan Saya</div>
+        </div>
+        <div style="padding:10px">
+          <div style="background:var(--dark);border-radius:14px;padding:16px;margin-bottom:10px;text-align:center">
+            <div style="font-size:10px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px">Total bulan ini</div>
+            <div style="font-size:28px;font-weight:700;color:#fff">Rp 3.460.000</div>
+            <div style="font-size:11px;color:rgba(255,255,255,.5);margin-top:4px">Gaji pokok Rp 2.500.000 + Komisi Rp 960.000</div>
+          </div>
+          <div class="card" style="margin:0 0 10px">
+            <div class="card-title">Pendapatan 6 bulan terakhir</div>
+            <div class="earn-bars">
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center"><div class="eb" style="height:45%;background:#d1d5db;width:100%"></div><div class="eb-label">Nov</div></div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center"><div class="eb" style="height:55%;background:#d1d5db;width:100%"></div><div class="eb-label">Des</div></div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center"><div class="eb" style="height:65%;background:#d1d5db;width:100%"></div><div class="eb-label">Jan</div></div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center"><div class="eb" style="height:70%;background:#d1d5db;width:100%"></div><div class="eb-label">Feb</div></div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center"><div class="eb" style="height:80%;background:#1D9E75;width:100%"></div><div class="eb-label">Mar</div></div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center"><div class="eb" style="height:100%;background:#0F6E56;width:100%"></div><div class="eb-label">Apr</div></div>
+            </div>
+          </div>
+          <div class="card" style="margin:0">
+            <div class="card-title">Rincian bulan ini</div>
+            <div class="list-item"><div class="li-icon" style="background:#dcf5ed">💰</div><div style="flex:1"><div style="font-size:12px;font-weight:600">Gaji pokok</div><div style="font-size:10px;color:var(--text2)">Dibayar tgl 5 tiap bulan</div></div><span style="font-size:12px;font-weight:700">Rp 2.500.000</span></div>
+            <div class="list-item"><div class="li-icon" style="background:#FEF3C7">⭐</div><div style="flex:1"><div style="font-size:12px;font-weight:600">Komisi trip (16 trip)</div><div style="font-size:10px;color:var(--text2)">Rp 60.000/trip</div></div><span style="font-size:12px;font-weight:700">Rp 960.000</span></div>
+            <div class="list-item" style="border-bottom:none"><div class="li-icon" style="background:#dcf5ed">🏆</div><div style="flex:1"><div style="font-size:12px;font-weight:600">Bonus rating terbaik</div><div style="font-size:10px;color:var(--text2)">Rating 4.91★ bulan ini</div></div><span style="font-size:12px;font-weight:700;color:var(--green)">Rp 100.000</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CHAT PAGE -->
+      <div class="dpage" id="dp-chat">
+        <div style="padding:10px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border);background:var(--bg2)">
+          <span style="cursor:pointer;color:var(--text2)" onclick="showDPage('home')">←</span>
+          <span style="font-size:13px;font-weight:700">Chat Center</span>
+        </div>
+        <!-- Chat tabs -->
+        <div style="display:flex;background:var(--bg2);border-bottom:1px solid var(--border)">
+          <div style="flex:1;text-align:center;padding:9px;font-size:11px;font-weight:600;color:var(--green);border-bottom:2px solid var(--green);cursor:pointer">Klien</div>
+          <div style="flex:1;text-align:center;padding:9px;font-size:11px;color:var(--text2);cursor:pointer">HQ Admin</div>
+        </div>
+        <!-- Chat bubbles -->
+        <div style="padding:10px;display:flex;flex-direction:column;gap:10px;height:340px;overflow-y:auto;background:var(--bg)">
+          <div style="display:flex;justify-content:flex-start"><div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px 12px 12px 0;padding:8px 12px;max-width:75%;font-size:12px;color:var(--text)">Selamat pagi Pak! Sudah di jalan ya? 😊<div style="font-size:9px;color:var(--text3);margin-top:3px">Sari Dewi · 02:45</div></div></div>
+          <div style="display:flex;justify-content:flex-end"><div style="background:var(--green);border-radius:12px 12px 0 12px;padding:8px 12px;max-width:75%;font-size:12px;color:#fff">Sudah Bu Sari, OTW ke hotel. Estimasi 10 menit lagi 🙏<div style="font-size:9px;color:rgba(255,255,255,.6);margin-top:3px">02:47 · ✓✓</div></div></div>
+          <div style="display:flex;justify-content:flex-start"><div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px 12px 12px 0;padding:8px 12px;max-width:75%;font-size:12px;color:var(--text)">Siap Pak! Ada 3 orang ya termasuk ibu mertua saya yang sudah sepuh<div style="font-size:9px;color:var(--text3);margin-top:3px">Sari Dewi · 02:48</div></div></div>
+          <div style="display:flex;justify-content:flex-end"><div style="background:var(--green);border-radius:12px 12px 0 12px;padding:8px 12px;max-width:75%;font-size:12px;color:#fff">Siap Bu, saya akan jalan pelan-pelan dan hati-hati. Tempat duduk depan paling nyaman untuk beliau 👍<div style="font-size:9px;color:rgba(255,255,255,.6);margin-top:3px">02:50 · ✓✓</div></div></div>
+          <div style="display:flex;justify-content:flex-start"><div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px 12px 12px 0;padding:8px 12px;max-width:75%;font-size:12px;color:var(--text)">Foto sunrise-nya keren banget Pak! Terima kasih 🌄❤️<div style="font-size:9px;color:var(--text3);margin-top:3px">Sari Dewi · 05:42</div></div></div>
+        </div>
+        <div style="padding:8px;background:var(--bg2);border-top:1px solid var(--border);display:flex;gap:6px">
+          <input style="flex:1;border:1px solid var(--border);border-radius:20px;padding:8px 14px;font-size:12px;outline:none" placeholder="Ketik pesan..."/>
+          <button style="background:var(--green);color:#fff;border:none;border-radius:50%;width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;font-size:14px">→</button>
+        </div>
+      </div>
+
+      <!-- NOTIF PAGE -->
+      <div class="dpage" id="dp-notif">
+        <div style="padding:10px 10px 6px;background:var(--bg2);border-bottom:1px solid var(--border)">
+          <div style="font-size:14px;font-weight:700">Notifikasi</div>
+        </div>
+        <div style="padding:10px">
+          <div class="card" style="margin:0">
+            <div class="notif-item"><div class="ni-dot" style="background:#1D9E75"></div><div><div style="font-size:12px;font-weight:600">Trip baru ditambahkan ke jadwalmu</div><div style="font-size:11px;color:var(--text2);margin-top:2px">#TN-0455 · Jogja Heritage · Hari ini 19:00 · 2 pax</div><div style="font-size:10px;color:var(--text3);margin-top:2px">2 jam lalu</div></div></div>
+            <div class="notif-item"><div class="ni-dot" style="background:#BA7517"></div><div><div style="font-size:12px;font-weight:600">Pesan baru dari klien</div><div style="font-size:11px;color:var(--text2);margin-top:2px">Sari Dewi: "Foto sunrise-nya keren banget!"</div><div style="font-size:10px;color:var(--text3);margin-top:2px">3 jam lalu</div></div></div>
+            <div class="notif-item"><div class="ni-dot" style="background:#534AB7"></div><div><div style="font-size:12px;font-weight:600">Pembayaran gaji diproses</div><div style="font-size:11px;color:var(--text2);margin-top:2px">Rp 3.460.000 akan masuk tgl 5 Mei</div><div style="font-size:10px;color:var(--text3);margin-top:2px">Kemarin</div></div></div>
+            <div class="notif-item" style="border-bottom:none"><div class="ni-dot" style="background:#E24B4A"></div><div><div style="font-size:12px;font-weight:600">Rating baru masuk</div><div style="font-size:11px;color:var(--text2);margin-top:2px">Linda S. memberi rating ★★★★★ — "Driver terbaik!"</div><div style="font-size:10px;color:var(--text3);margin-top:2px">2 hari lalu</div></div></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- BOTTOM NAV -->
+    <div class="bottom-nav">
+      <div class="bn-item active" onclick="showDPage('home');setNav(this)" style="position:relative"><div class="bn-icon">🏠</div><div class="bn-label">Home</div></div>
+      <div class="bn-item" onclick="showDPage('trip');setNav(this)"><div class="bn-icon">📋</div><div class="bn-label">Trip</div></div>
+      <div class="bn-item" onclick="showDPage('upload');setNav(this)"><div class="bn-icon">📸</div><div class="bn-label">Upload</div></div>
+      <div class="bn-item" onclick="showDPage('earnings');setNav(this)"><div class="bn-icon">💰</div><div class="bn-label">Gaji</div></div>
+      <div class="bn-item" style="position:relative" onclick="showDPage('notif');setNav(this)"><div class="bn-icon">🔔</div><div class="bn-label">Notif</div><div class="bn-badge">3</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- INFO PANEL -->
+<div style="width:200px;flex-shrink:0">
+  <div style="font-size:11px;font-weight:700;color:var(--text2);margin-bottom:10px;letter-spacing:.04em;text-transform:uppercase">Koneksi antar sistem</div>
+  
+  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:10px">
+    <div style="font-size:11px;font-weight:700;margin-bottom:10px;color:var(--text)">Flow data real-time</div>
+    <div style="font-size:11px;color:var(--text2);line-height:2.2">
+      <div style="display:flex;align-items:center;gap:6px"><span style="width:22px;height:22px;border-radius:6px;background:#dcf5ed;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0">📱</span>Driver upload foto</div>
+      <div style="padding-left:11px;color:var(--text3);font-size:10px;margin:-4px 0 -4px">↓ Supabase Storage + Realtime</div>
+      <div style="display:flex;align-items:center;gap:6px"><span style="width:22px;height:22px;border-radius:6px;background:#DBEAFE;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0">🗺️</span>Real Trip Maps update</div>
+      <div style="padding-left:11px;color:var(--text3);font-size:10px;margin:-4px 0 -4px">↓ < 1 detik</div>
+      <div style="display:flex;align-items:center;gap:6px"><span style="width:22px;height:22px;border-radius:6px;background:#FEF3C7;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0">👤</span>Klien lihat di web</div>
+      <div style="padding-left:11px;color:var(--text3);font-size:10px;margin:-4px 0 -4px">↓ Otomatis</div>
+      <div style="display:flex;align-items:center;gap:6px"><span style="width:22px;height:22px;border-radius:6px;background:#F3E8FF;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0">🖥️</span>Admin pantau HQ</div>
+    </div>
+  </div>
+
+  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:10px">
+    <div style="font-size:11px;font-weight:700;margin-bottom:8px;color:var(--text)">Driver bisa akses</div>
+    <div style="font-size:11px;color:var(--text2);display:flex;flex-direction:column;gap:6px">
+      <div>📅 Jadwal trip harian</div>
+      <div>📍 GPS tracking ON/OFF</div>
+      <div>📸 Upload foto/video live</div>
+      <div>💬 Chat klien & admin</div>
+      <div>📋 Detail & checklist trip</div>
+      <div>💰 Rincian gaji & komisi</div>
+      <div>🔔 Notif dari HQ</div>
+    </div>
+  </div>
+
+  <div style="background:#dcf5ed;border:1px solid rgba(29,158,117,.2);border-radius:12px;padding:12px">
+    <div style="font-size:11px;font-weight:700;margin-bottom:6px;color:#064e3b">Tech yang dipakai</div>
+    <div style="display:flex;flex-direction:column;gap:4px">
+      <div style="font-size:10px;background:#fff;border-radius:5px;padding:4px 8px;color:var(--text2)">PWA (Progressive Web App)</div>
+      <div style="font-size:10px;background:#fff;border-radius:5px;padding:4px 8px;color:var(--text2)">Supabase Realtime GPS</div>
+      <div style="font-size:10px;background:#fff;border-radius:5px;padding:4px 8px;color:var(--text2)">Supabase Storage (media)</div>
+      <div style="font-size:10px;background:#fff;border-radius:5px;padding:4px 8px;color:var(--text2)">Push Notifications API</div>
+      <div style="font-size:10px;background:#fff;border-radius:5px;padding:4px 8px;color:var(--text2)">Geolocation API (browser)</div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script>
+function showDPage(id) {
+  document.querySelectorAll('.dpage').forEach(p => p.classList.remove('active'));
+  const el = document.getElementById('dp-' + id);
+  if (el) el.classList.add('active');
+}
+function setNav(el) {
+  document.querySelectorAll('.bn-item').forEach(n => n.classList.remove('active'));
+  el.classList.add('active');
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,501 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+:root{--bg:#f7f8fa;--bg2:#fff;--bg3:#f0f2f5;--border:#e5e7eb;--text:#111;--text2:#6b7280;--text3:#9ca3af;--green:#0F6E56;--green2:#1D9E75;--green3:#E1F5EE;--green4:#085041}
+body{background:var(--bg);font-size:13px;color:var(--text)}
+/* NAV */
+.nav{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 20px;height:52px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100}
+.logo{font-size:16px;font-weight:700;color:var(--green);letter-spacing:-0.5px;flex-shrink:0}
+.logo span{color:var(--green2)}
+.nav-links{display:flex;gap:2px;flex:1;justify-content:center}
+.nl{padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px;color:var(--text2);white-space:nowrap}
+.nl:hover,.nl.active{background:var(--green3);color:var(--green4)}
+.nav-right{display:flex;gap:8px;align-items:center;flex-shrink:0}
+.btn-outline{border:1px solid var(--border);background:var(--bg2);border-radius:7px;padding:6px 14px;font-size:12px;cursor:pointer;color:var(--text)}
+.btn-primary{background:var(--green);color:#fff;border:none;border-radius:7px;padding:6px 14px;font-size:12px;cursor:pointer}
+.nav-av{width:30px;height:30px;border-radius:50%;background:var(--green2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;cursor:pointer}
+/* PAGE SWITCH */
+.page{display:none}.page.active{display:block}
+/* HERO */
+.hero{background:linear-gradient(135deg,#082820 0%,#0B3D2E 50%,#0F5540 100%);padding:40px 24px 32px;position:relative;overflow:hidden}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:6px;background:rgba(93,202,165,0.15);border:1px solid rgba(93,202,165,0.25);color:#5DCAA5;font-size:11px;padding:4px 12px;border-radius:20px;margin-bottom:14px}
+.pulse{width:6px;height:6px;border-radius:50%;background:#5DCAA5;animation:p 2s infinite}
+@keyframes p{0%,100%{opacity:1}50%{opacity:.3}}
+.hero h1{font-size:28px;font-weight:700;color:#fff;line-height:1.2;max-width:400px;margin-bottom:10px}
+.hero h1 em{color:#5DCAA5;font-style:normal}
+.hero p{color:rgba(255,255,255,.55);font-size:13px;max-width:360px;line-height:1.7;margin-bottom:22px}
+.search-wrap{background:rgba(255,255,255,.1);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.15);border-radius:12px;padding:4px;display:flex;gap:4px;max-width:520px}
+.search-wrap input{background:transparent;border:none;outline:none;padding:8px 12px;font-size:13px;color:#fff;flex:1;min-width:0}
+.search-wrap input::placeholder{color:rgba(255,255,255,.4)}
+.search-wrap select{background:rgba(255,255,255,.1);border:none;outline:none;color:rgba(255,255,255,.8);font-size:12px;padding:4px 8px;border-radius:8px;cursor:pointer}
+.search-wrap button{background:var(--green2);color:#fff;border:none;border-radius:8px;padding:8px 18px;font-size:12px;cursor:pointer;white-space:nowrap}
+.hero-stats{display:flex;gap:24px;margin-top:20px}
+.hs{font-size:11px;color:rgba(255,255,255,.45)}
+.hs strong{font-size:17px;font-weight:700;color:#fff;display:block}
+.hero-float{position:absolute;right:20px;top:24px;display:flex;flex-direction:column;gap:8px}
+.float-card{background:rgba(255,255,255,.08);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:10px 14px;width:160px}
+.fc-label{font-size:10px;color:rgba(255,255,255,.4);margin-bottom:3px}
+.fc-val{font-size:13px;font-weight:600;color:#fff}
+.fc-sub{font-size:10px;color:#5DCAA5;margin-top:1px}
+/* SECTION */
+.sec{padding:20px}
+.sec-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.sec-title{font-size:15px;font-weight:700;color:var(--text)}
+.sec-link{font-size:12px;color:var(--green);cursor:pointer}
+/* FILTER CHIPS */
+.chips{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.chip{padding:5px 14px;border-radius:20px;border:1px solid var(--border);background:var(--bg2);font-size:11px;color:var(--text2);cursor:pointer;white-space:nowrap;transition:all .12s}
+.chip.active,.chip:hover{background:var(--green3);border-color:var(--green2);color:var(--green4)}
+/* CARDS */
+.pkg-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.pkg-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden;cursor:pointer;transition:box-shadow .15s,transform .15s}
+.pkg-card:hover{box-shadow:0 4px 20px rgba(0,0,0,.08);transform:translateY(-2px)}
+.pkg-img{height:110px;display:flex;align-items:flex-end;padding:8px;position:relative}
+.pkg-fav{position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.9);display:flex;align-items:center;justify-content:center;font-size:13px;cursor:pointer}
+.pkg-body{padding:12px}
+.pkg-region{font-size:10px;color:var(--text3);margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em}
+.pkg-title{font-size:13px;font-weight:600;color:var(--text);line-height:1.3;margin-bottom:4px}
+.pkg-meta{display:flex;gap:8px;font-size:11px;color:var(--text2);margin-bottom:8px}
+.pkg-bottom{display:flex;align-items:center;justify-content:space-between}
+.pkg-price{font-size:15px;font-weight:700;color:var(--green)}
+.pkg-price span{font-size:10px;font-weight:400;color:var(--text3)}
+.pkg-tags{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px}
+.tag{font-size:10px;background:var(--bg3);color:var(--text2);padding:2px 7px;border-radius:4px}
+.btn-sm{background:var(--green3);color:var(--green4);border:none;border-radius:6px;padding:5px 12px;font-size:11px;cursor:pointer;font-weight:500}
+/* TRIP STATUS */
+.status-timeline{padding:16px}
+.timeline-item{display:flex;gap:12px;position:relative;padding-bottom:16px}
+.timeline-item:last-child{padding-bottom:0}
+.tl-left{display:flex;flex-direction:column;align-items:center;gap:0}
+.tl-dot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;z-index:1}
+.tl-line{width:2px;flex:1;min-height:20px;background:var(--border);margin:2px 0}
+.tl-content{flex:1;padding-bottom:4px}
+.tl-title{font-size:12px;font-weight:600;color:var(--text);margin-bottom:2px}
+.tl-sub{font-size:11px;color:var(--text2)}
+.tl-time{font-size:10px;color:var(--text3);margin-top:2px}
+/* LIVE MAP */
+.map-container{background:linear-gradient(135deg,#0a1f1c 0%,#0f2e28 100%);border-radius:12px;height:200px;position:relative;overflow:hidden;border:1px solid var(--border)}
+.map-grid{position:absolute;inset:0;opacity:.08}
+.map-pin-c{position:absolute;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer}
+.mp-circle{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;border:2px solid rgba(255,255,255,.4)}
+.mp-ring{position:absolute;width:32px;height:32px;border-radius:50%;animation:ring 2s ease-out infinite}
+@keyframes ring{0%{transform:scale(1);opacity:.6}100%{transform:scale(2.5);opacity:0}}
+.mp-label{background:rgba(0,0,0,.7);color:#fff;font-size:9px;padding:2px 7px;border-radius:4px;white-space:nowrap}
+.photo-popup{position:absolute;right:12px;top:12px;background:rgba(255,255,255,.95);border-radius:10px;padding:10px;width:150px;box-shadow:0 4px 20px rgba(0,0,0,.15)}
+.photo-strip{display:flex;gap:4px;margin-top:6px}
+.ph-thumb{width:38px;height:30px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:16px}
+/* BOOKING PAGE */
+.booking-layout{display:grid;grid-template-columns:1fr 320px;gap:16px;padding:16px}
+.booking-main{background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.bm-img{height:180px;background:linear-gradient(135deg,#0a1a1a,#1a4a3a);display:flex;align-items:center;justify-content:center;font-size:48px;position:relative}
+.bm-badge{position:absolute;top:12px;left:12px;background:rgba(0,0,0,.6);color:#fff;font-size:10px;padding:4px 10px;border-radius:20px}
+.bm-body{padding:16px}
+.bm-title{font-size:18px;font-weight:700;margin-bottom:4px}
+.bm-sub{font-size:12px;color:var(--text2);margin-bottom:12px}
+.info-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px}
+.info-item{background:var(--bg3);border-radius:8px;padding:10px}
+.info-label{font-size:10px;color:var(--text3);margin-bottom:2px}
+.info-val{font-size:13px;font-weight:600;color:var(--text)}
+.include-list{display:flex;flex-direction:column;gap:6px}
+.inc-item{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text2)}
+.inc-check{width:18px;height:18px;border-radius:50%;background:var(--green3);color:var(--green4);display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0}
+/* BOOKING SIDEBAR */
+.book-sidebar{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;position:sticky;top:60px;height:fit-content}
+.price-display{border-bottom:1px solid var(--border);padding-bottom:12px;margin-bottom:12px}
+.price-main{font-size:22px;font-weight:700;color:var(--green)}
+.price-sub{font-size:11px;color:var(--text3)}
+.form-field{margin-bottom:10px}
+.form-label{font-size:11px;font-weight:500;color:var(--text2);margin-bottom:4px}
+.form-input{width:100%;border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:12px;outline:none;background:var(--bg2)}
+.form-input:focus{border-color:var(--green2)}
+.pax-ctrl{display:flex;align-items:center;gap:10px}
+.pax-btn{width:28px;height:28px;border-radius:6px;border:1px solid var(--border);background:var(--bg2);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center}
+.pax-val{font-size:14px;font-weight:600;min-width:20px;text-align:center}
+.price-breakdown{background:var(--bg3);border-radius:8px;padding:12px;margin:12px 0;font-size:11px}
+.pb-row{display:flex;justify-content:space-between;color:var(--text2);margin-bottom:4px}
+.pb-total{display:flex;justify-content:space-between;font-weight:700;font-size:13px;color:var(--text);margin-top:6px;padding-top:6px;border-top:1px solid var(--border)}
+.btn-book{width:100%;background:var(--green);color:#fff;border:none;border-radius:10px;padding:12px;font-size:13px;font-weight:600;cursor:pointer;margin-top:4px}
+.btn-book:hover{background:var(--green4)}
+/* MYBOOKINGS */
+.booking-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px;display:flex;gap:14px;cursor:pointer;transition:box-shadow .12s}
+.booking-card:hover{box-shadow:0 2px 12px rgba(0,0,0,.07)}
+.bc-img{width:70px;height:60px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
+.bc-content{flex:1;min-width:0}
+.bc-title{font-size:13px;font-weight:600;margin-bottom:2px}
+.bc-meta{font-size:11px;color:var(--text2);margin-bottom:6px}
+.bc-bottom{display:flex;align-items:center;gap:8px}
+.badge{display:inline-flex;padding:3px 9px;border-radius:5px;font-size:10px;font-weight:600}
+.bon{background:#E1F5EE;color:#085041}.bdone{background:#EAF3DE;color:#3B6D11}
+.bpend{background:#FAEEDA;color:#633806}.bcancel{background:#FCEBEB;color:#501313}
+.bblue{background:#E6F1FB;color:#0C447C}
+/* REVIEW */
+.review-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:8px}
+.stars{color:#BA7517;font-size:13px;margin-bottom:6px}
+.review-text{font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:8px}
+.review-user{display:flex;align-items:center;gap:8px}
+.review-av{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700}
+</style>
+</head>
+<body>
+
+<div class="nav">
+  <div class="logo">Trip<span>Nesia</span></div>
+  <div class="nav-links">
+    <div class="nl active" onclick="showPage('home',this)">Discover</div>
+    <div class="nl" onclick="showPage('booking',this)">Paket Wisata</div>
+    <div class="nl" onclick="showPage('realmap',this)">Real Trip Maps 🔴</div>
+    <div class="nl" onclick="showPage('mybookings',this)">Booking Saya</div>
+    <div class="nl" onclick="showPage('profile',this)">Profil</div>
+  </div>
+  <div class="nav-right">
+    <div class="btn-outline">Masuk</div>
+    <div class="btn-primary">Daftar</div>
+    <div class="nav-av">SD</div>
+  </div>
+</div>
+
+<!-- HOME -->
+<div class="page active" id="page-home">
+  <div class="hero">
+    <div class="hero-float">
+      <div class="float-card">
+        <div class="fc-label">Live trip sekarang</div>
+        <div class="fc-val">47 trip aktif</div>
+        <div class="fc-sub">Real-time GPS tracking</div>
+      </div>
+      <div class="float-card">
+        <div class="fc-label">Foto terbaru dari lapangan</div>
+        <div class="fc-val">Bromo — 04:32</div>
+        <div class="fc-sub">Pak Budi · 15 foto baru</div>
+      </div>
+    </div>
+    <div class="hero-eyebrow"><div class="pulse"></div>47 trip sedang berlangsung sekarang</div>
+    <h1>Explore Indonesia —<br><em>versi aslinya,</em> bukan katalog</h1>
+    <p>Paket wisata dengan driver profesional, fotografer, dan dokumentasi real-time langsung dari lapangan.</p>
+    <div class="search-wrap">
+      <span style="color:rgba(255,255,255,.4);padding:0 6px;font-size:16px">⊙</span>
+      <input placeholder="Cari destinasi atau paket wisata..."/>
+      <select><option>Semua Region</option><option>Jogja</option><option>Bali</option><option>Lombok</option><option>Labuan Bajo</option></select>
+      <button onclick="showPage('booking',document.querySelector('.nl:nth-child(2)'))">Cari Paket</button>
+    </div>
+    <div class="hero-stats">
+      <div class="hs"><strong>2.400+</strong>Trip selesai</div>
+      <div class="hs"><strong>98%</strong>Kepuasan</div>
+      <div class="hs"><strong>42</strong>Paket aktif</div>
+      <div class="hs"><strong>5</strong>Regional hub</div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-head"><div class="sec-title">Paket terpopuler</div><div class="sec-link" onclick="showPage('booking',document.querySelector('.nl:nth-child(2)'))">Lihat semua →</div></div>
+    <div class="chips">
+      <div class="chip active">Semua</div>
+      <div class="chip">1 Hari</div>
+      <div class="chip">2 Hari</div>
+      <div class="chip">Sunrise</div>
+      <div class="chip">Petualangan</div>
+      <div class="chip">Budaya</div>
+    </div>
+    <div class="pkg-grid">
+      <div class="pkg-card" onclick="showPage('detail',null)">
+        <div class="pkg-img" style="background:linear-gradient(135deg,#1a3a2a,#2d6a3a)">
+          <div style="font-size:36px;position:absolute;top:50%;left:50%;transform:translate(-50%,-60%)">🌄</div>
+          <div class="pkg-fav">♡</div>
+          <div style="background:rgba(0,0,0,.5);color:#fff;font-size:9px;padding:2px 7px;border-radius:4px">Jogja Hub</div>
+        </div>
+        <div class="pkg-body">
+          <div class="pkg-region">Malang · Jawa Timur</div>
+          <div class="pkg-title">Bromo Sunrise Experience</div>
+          <div class="pkg-meta"><span>⏱ 1 hari</span><span>·</span><span>★ 4.9 (124)</span><span>·</span><span>Min 2 pax</span></div>
+          <div class="pkg-bottom">
+            <div><div class="pkg-price">Rp 1.200.000<span>/pax</span></div></div>
+            <button class="btn-sm" onclick="event.stopPropagation();showPage('detail',null)">Pesan →</button>
+          </div>
+          <div class="pkg-tags"><span class="tag">Jeep 4WD</span><span class="tag">Foto</span><span class="tag">Sunrise</span></div>
+        </div>
+      </div>
+      <div class="pkg-card" style="position:relative">
+        <div style="background:#0F6E56;color:#fff;font-size:9px;padding:3px 0;text-align:center;font-weight:600;letter-spacing:.04em">⭐ PALING POPULER</div>
+        <div class="pkg-img" style="background:linear-gradient(135deg,#0a1a24,#1a3a5a)">
+          <div style="font-size:36px;position:absolute;top:50%;left:50%;transform:translate(-50%,-60%)">🌋</div>
+          <div class="pkg-fav">♡</div>
+          <div style="background:rgba(0,0,0,.5);color:#fff;font-size:9px;padding:2px 7px;border-radius:4px">Surabaya Hub</div>
+        </div>
+        <div class="pkg-body">
+          <div class="pkg-region">Banyuwangi · Jawa Timur</div>
+          <div class="pkg-title">Ijen Blue Fire Night Trip</div>
+          <div class="pkg-meta"><span>⏱ 2 hari</span><span>·</span><span>★ 5.0 (89)</span><span>·</span><span>Min 2 pax</span></div>
+          <div class="pkg-bottom">
+            <div><div class="pkg-price">Rp 1.500.000<span>/pax</span></div></div>
+            <button class="btn-sm">Pesan →</button>
+          </div>
+          <div class="pkg-tags"><span class="tag">Blue Fire</span><span class="tag">Homestay</span><span class="tag">Hiking</span></div>
+        </div>
+      </div>
+      <div class="pkg-card">
+        <div class="pkg-img" style="background:linear-gradient(135deg,#0f1a3a,#1a2d6a)">
+          <div style="font-size:36px;position:absolute;top:50%;left:50%;transform:translate(-50%,-60%)">🤿</div>
+          <div class="pkg-fav">♡</div>
+          <div style="background:rgba(0,0,0,.5);color:#fff;font-size:9px;padding:2px 7px;border-radius:4px">Labuan Bajo Hub</div>
+        </div>
+        <div class="pkg-body">
+          <div class="pkg-region">Labuan Bajo · NTT</div>
+          <div class="pkg-title">Komodo Sailing 3D2N</div>
+          <div class="pkg-meta"><span>⏱ 3 hari</span><span>·</span><span>★ 5.0 (42)</span><span>·</span><span>Min 4 pax</span></div>
+          <div class="pkg-bottom">
+            <div><div class="pkg-price">Rp 6.500.000<span>/pax</span></div></div>
+            <button class="btn-sm">Pesan →</button>
+          </div>
+          <div class="pkg-tags"><span class="tag">Kapal Phinisi</span><span class="tag">Snorkeling</span><span class="tag">Komodo</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RTM TEASER -->
+  <div style="background:var(--bg2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:20px">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:20px">
+      <div style="flex:1">
+        <div style="display:inline-flex;align-items:center;gap:6px;background:#E1F5EE;color:#085041;font-size:10px;padding:3px 10px;border-radius:20px;margin-bottom:8px;font-weight:600">🔴 LIVE Fitur eksklusif</div>
+        <div style="font-size:16px;font-weight:700;margin-bottom:6px">Real Trip Maps</div>
+        <div style="font-size:12px;color:var(--text2);line-height:1.7;max-width:400px;margin-bottom:12px">Lihat posisi driver yang lagi on duty secara real-time. Klik pin untuk melihat foto & video langsung dari lapangan — fitur yang tidak ada di platform lain.</div>
+        <button class="btn-primary" style="border-radius:8px;padding:8px 18px;font-size:12px" onclick="showPage('realmap',document.querySelector('.nl:nth-child(3)'))">Buka Real Trip Maps →</button>
+      </div>
+      <div class="map-container" style="width:280px;height:150px;flex-shrink:0">
+        <svg width="100%" height="100%" viewBox="0 0 280 150" style="position:absolute;inset:0;opacity:.12"><line x1="0" y1="50" x2="280" y2="50" stroke="#5DCAA5" stroke-width=".5"/><line x1="0" y1="100" x2="280" y2="100" stroke="#5DCAA5" stroke-width=".5"/><line x1="70" y1="0" x2="70" y2="150" stroke="#5DCAA5" stroke-width=".5"/><line x1="140" y1="0" x2="140" y2="150" stroke="#5DCAA5" stroke-width=".5"/><line x1="210" y1="0" x2="210" y2="150" stroke="#5DCAA5" stroke-width=".5"/></svg>
+        <div class="map-pin-c" style="left:22%;top:22%"><div class="mp-ring" style="background:rgba(29,158,117,.4)"></div><div class="mp-circle" style="background:#1D9E75;color:#fff">🚗</div><div class="mp-label">Bromo</div></div>
+        <div class="map-pin-c" style="left:50%;top:45%"><div class="mp-ring" style="background:rgba(83,74,183,.4)"></div><div class="mp-circle" style="background:#534AB7;color:#fff">🚗</div><div class="mp-label">Bali</div></div>
+        <div class="map-pin-c" style="left:72%;top:30%"><div class="mp-circle" style="background:#993C1D;color:#fff">🚗</div><div class="mp-label">Lombok</div></div>
+        <div style="position:absolute;bottom:8px;left:10px;background:rgba(29,158,117,.2);border:1px solid rgba(29,158,117,.4);color:#5DCAA5;font-size:10px;padding:3px 8px;border-radius:4px">47 driver aktif</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- REVIEWS -->
+  <div class="sec">
+    <div class="sec-head"><div class="sec-title">Ulasan perjalanan</div><div class="sec-link">★ 4.9 dari 1.840 ulasan</div></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+      <div class="review-card"><div class="stars">★★★★★</div><div class="review-text">"Real Trip Maps-nya keren! Bisa pantau driver dari rumah. Sampai lokasi driver sudah siap."</div><div class="review-user"><div class="review-av" style="background:#E1F5EE;color:#085041">SD</div><div style="font-size:11px;color:var(--text2)">Sari D. · Bromo Trip</div></div></div>
+      <div class="review-card"><div class="stars">★★★★★</div><div class="review-text">"Foto-fotonya luar biasa! Fotografer mereka profesional banget. Sudah 3x booking sini."</div><div class="review-user"><div class="review-av" style="background:#FAEEDA;color:#633806">RA</div><div style="font-size:11px;color:var(--text2)">Reza A. · Ijen Trip</div></div></div>
+      <div class="review-card"><div class="stars">★★★★★</div><div class="review-text">"Komodo trip terbaik! Phinisi-nya nyaman, guide-nya expert, snorkeling spot pilihan terbaik."</div><div class="review-user"><div class="review-av" style="background:#EEEDFE;color:#26215C">JT</div><div style="font-size:11px;color:var(--text2)">James T. · Komodo Trip</div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- BOOKING DETAIL -->
+<div class="page" id="page-detail">
+  <div class="booking-layout">
+    <div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;padding:0 4px">
+        <span style="color:var(--text3);font-size:12px;cursor:pointer" onclick="showPage('home',document.querySelector('.nl:first-child'))">← Kembali</span>
+        <span style="color:var(--text3)">·</span>
+        <span style="font-size:12px;color:var(--text2)">Bromo Sunrise Experience</span>
+      </div>
+      <div class="booking-main">
+        <div class="bm-img">🌄<div class="bm-badge">Jogja Hub · Malang, Jawa Timur</div></div>
+        <div class="bm-body">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:6px">
+            <div><div class="bm-title">Bromo Sunrise Experience</div><div class="bm-sub">★ 4.9 (124 ulasan) · Sudah 420+ orang ikut trip ini</div></div>
+            <div style="background:#E1F5EE;color:#085041;font-size:10px;padding:4px 10px;border-radius:6px;font-weight:600;white-space:nowrap">Bestseller</div>
+          </div>
+          <div class="info-grid">
+            <div class="info-item"><div class="info-label">Durasi</div><div class="info-val">1 Hari</div></div>
+            <div class="info-item"><div class="info-label">Pickup</div><div class="info-val">03:00 WIB</div></div>
+            <div class="info-item"><div class="info-label">Min. Peserta</div><div class="info-val">2 orang</div></div>
+          </div>
+          <div style="font-size:12px;font-weight:600;margin-bottom:8px;color:var(--text)">Yang sudah termasuk:</div>
+          <div class="include-list">
+            <div class="inc-item"><div class="inc-check">✓</div>Transportasi PP dengan mobil AC</div>
+            <div class="inc-item"><div class="inc-check">✓</div>Sewa jeep 4WD ke kawah Bromo</div>
+            <div class="inc-item"><div class="inc-check">✓</div>Tiket masuk area Bromo</div>
+            <div class="inc-item"><div class="inc-check">✓</div>Fotografer profesional (opsional)</div>
+            <div class="inc-item"><div class="inc-check">✓</div>Dokumentasi selama perjalanan via Real Trip Maps</div>
+            <div class="inc-item"><div class="inc-check">✓</div>Air mineral & snack selama perjalanan</div>
+          </div>
+          <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border)">
+            <div style="font-size:12px;font-weight:600;margin-bottom:8px">Itinerary singkat</div>
+            <div class="status-timeline">
+              <div class="timeline-item"><div class="tl-left"><div class="tl-dot" style="background:#0F6E56;color:#fff;font-size:10px">1</div><div class="tl-line"></div></div><div class="tl-content"><div class="tl-title">Penjemputan di hotel/lokasi</div><div class="tl-sub">Driver tiba 15 menit sebelum jadwal</div><div class="tl-time">03:00 WIB</div></div></div>
+              <div class="timeline-item"><div class="tl-left"><div class="tl-dot" style="background:#0F6E56;color:#fff;font-size:10px">2</div><div class="tl-line"></div></div><div class="tl-content"><div class="tl-title">Perjalanan ke Bromo</div><div class="tl-sub">Berhenti untuk sarapan ringan di perjalanan</div><div class="tl-time">03:00 – 05:30</div></div></div>
+              <div class="timeline-item"><div class="tl-left"><div class="tl-dot" style="background:#1D9E75;color:#fff;font-size:10px">3</div><div class="tl-line"></div></div><div class="tl-content"><div class="tl-title">Sunrise di Penanjakan</div><div class="tl-sub">Spot terbaik untuk foto golden hour</div><div class="tl-time">05:30 – 07:00</div></div></div>
+              <div class="timeline-item"><div class="tl-left"><div class="tl-dot" style="background:#1D9E75;color:#fff;font-size:10px">4</div></div><div class="tl-content"><div class="tl-title">Jeep ke kawah & kembali</div><div class="tl-sub">Foto kawah + perjalanan pulang</div><div class="tl-time">07:00 – 15:00</div></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- SIDEBAR BOOKING -->
+    <div class="book-sidebar">
+      <div class="price-display">
+        <div class="price-main">Rp 1.200.000</div>
+        <div class="price-sub">per orang · sudah termasuk semua biaya</div>
+      </div>
+      <div class="form-field"><div class="form-label">Tanggal Trip</div><input class="form-input" type="date" value="2026-05-10"/></div>
+      <div class="form-field"><div class="form-label">Jumlah Peserta</div>
+        <div class="pax-ctrl"><button class="pax-btn">−</button><span class="pax-val" id="pax">2</span><button class="pax-btn" onclick="document.getElementById('pax').textContent=parseInt(document.getElementById('pax').textContent)+1">+</button><span style="font-size:11px;color:var(--text2)">orang</span></div>
+      </div>
+      <div class="form-field"><div class="form-label">Tambahan Fotografer</div>
+        <select class="form-input"><option>Tidak perlu</option><option>Ya, tambahkan (+Rp 250.000)</option></select>
+      </div>
+      <div class="form-field"><div class="form-label">Lokasi Penjemputan</div><input class="form-input" placeholder="Hotel / alamat pickup"/></div>
+      <div class="price-breakdown">
+        <div class="pb-row"><span>Rp 1.200.000 × 2 pax</span><span>Rp 2.400.000</span></div>
+        <div class="pb-row"><span>Biaya layanan</span><span>Rp 48.000</span></div>
+        <div class="pb-total"><span>Total</span><span>Rp 2.448.000</span></div>
+      </div>
+      <button class="btn-book">Pesan Sekarang →</button>
+      <div style="text-align:center;font-size:10px;color:var(--text3);margin-top:8px">🔒 Pembayaran aman · Batalkan gratis 48 jam sebelum trip</div>
+    </div>
+  </div>
+</div>
+
+<!-- REAL TRIP MAPS -->
+<div class="page" id="page-realmap">
+  <div style="padding:16px">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+      <div style="display:flex;align-items:center;gap:6px;background:#E1F5EE;color:#085041;padding:5px 12px;border-radius:20px;font-size:11px;font-weight:600"><div class="pulse" style="background:#1D9E75"></div>LIVE — 47 driver aktif</div>
+      <div style="font-size:12px;color:var(--text2)">Klik pin driver untuk lihat dokumentasi real-time dari lapangan</div>
+    </div>
+    <div class="map-container" style="height:260px;margin-bottom:14px">
+      <svg width="100%" height="100%" viewBox="0 0 700 260" style="position:absolute;inset:0;opacity:.1"><rect width="700" height="260" fill="#0a1a1a"/><line x1="0" y1="65" x2="700" y2="65" stroke="#5DCAA5" stroke-width=".5"/><line x1="0" y1="130" x2="700" y2="130" stroke="#5DCAA5" stroke-width=".5"/><line x1="0" y1="195" x2="700" y2="195" stroke="#5DCAA5" stroke-width=".5"/><line x1="140" y1="0" x2="140" y2="260" stroke="#5DCAA5" stroke-width=".5"/><line x1="280" y1="0" x2="280" y2="260" stroke="#5DCAA5" stroke-width=".5"/><line x1="420" y1="0" x2="420" y2="260" stroke="#5DCAA5" stroke-width=".5"/><line x1="560" y1="0" x2="560" y2="260" stroke="#5DCAA5" stroke-width=".5"/><path d="M100,130 Q200,100 350,120 Q450,135 550,110 Q620,95 680,115" fill="none" stroke="rgba(255,255,255,.15)" stroke-width="1.5"/><text x="100" y="80" fill="rgba(255,255,255,.2)" font-size="9">Yogyakarta</text><text x="230" y="100" fill="rgba(255,255,255,.2)" font-size="9">Surabaya</text><text x="380" y="85" fill="rgba(255,255,255,.2)" font-size="9">Bali</text><text x="490" y="110" fill="rgba(255,255,255,.2)" font-size="9">Lombok</text><text x="590" y="90" fill="rgba(255,255,255,.2)" font-size="9">Labuan Bajo</text></svg>
+      <!-- Pins -->
+      <div class="map-pin-c" style="left:15%;top:28%"><div class="mp-ring" style="background:rgba(29,158,117,.4)"></div><div class="mp-circle" style="background:#1D9E75;color:#fff;font-size:12px">🚗</div><div class="mp-label">Pak Budi · Bromo</div></div>
+      <div class="map-pin-c" style="left:26%;top:20%"><div class="mp-ring" style="background:rgba(29,158,117,.3)"></div><div class="mp-circle" style="background:#1D9E75;color:#fff;font-size:12px">📸</div><div class="mp-label">Rizki · Foto Bromo</div></div>
+      <div class="map-pin-c" style="left:33%;top:38%"><div class="mp-ring" style="background:rgba(186,117,23,.4)"></div><div class="mp-circle" style="background:#BA7517;color:#fff;font-size:12px">🚗</div><div class="mp-label">Mas Doni · Ijen</div></div>
+      <div class="map-pin-c" style="left:54%;top:25%"><div class="mp-ring" style="background:rgba(83,74,183,.4)"></div><div class="mp-circle" style="background:#534AB7;color:#fff;font-size:12px">🚗</div><div class="mp-label">Komang · Ubud</div></div>
+      <div class="map-pin-c" style="left:62%;top:42%"><div class="mp-ring" style="background:rgba(83,74,183,.3)"></div><div class="mp-circle" style="background:#534AB7;color:#fff;font-size:12px">🚗</div><div class="mp-label">Nyoman · Uluwatu</div></div>
+      <div class="map-pin-c" style="left:72%;top:32%"><div class="mp-circle" style="background:#993C1D;color:#fff;font-size:12px">🚗</div><div class="mp-label">Wayan · Rinjani</div></div>
+      <div class="map-pin-c" style="left:85%;top:22%"><div class="mp-circle" style="background:#E24B4A;color:#fff;font-size:12px">🚗</div><div class="mp-label">Raden · Komodo</div></div>
+      <!-- Popup -->
+      <div class="photo-popup">
+        <div style="font-size:11px;font-weight:700;color:#111;margin-bottom:2px">Pak Budi · Bromo</div>
+        <div style="font-size:10px;color:#6b7280;margin-bottom:6px">Update 3 mnt lalu · GPS aktif</div>
+        <div style="font-size:10px;font-style:italic;color:#374151;margin-bottom:6px;">"Sunrise-nya luar biasa pagi ini!"</div>
+        <div class="photo-strip">
+          <div class="ph-thumb" style="background:#1a3a2a">🌄</div>
+          <div class="ph-thumb" style="background:#1a2a1a">🌿</div>
+          <div class="ph-thumb" style="background:#2a1a0a">⛰️</div>
+          <div style="font-size:10px;color:#6b7280;align-self:center;margin-left:2px">+12</div>
+        </div>
+      </div>
+      <div style="position:absolute;bottom:10px;left:12px;display:flex;gap:6px">
+        <div style="background:rgba(29,158,117,.2);border:1px solid rgba(29,158,117,.4);color:#5DCAA5;font-size:10px;padding:3px 8px;border-radius:4px">● Jogja (14)</div>
+        <div style="background:rgba(83,74,183,.2);border:1px solid rgba(83,74,183,.4);color:#9b93f6;font-size:10px;padding:3px 8px;border-radius:4px">● Bali (18)</div>
+        <div style="background:rgba(186,117,23,.2);border:1px solid rgba(186,117,23,.4);color:#f0a834;font-size:10px;padding:3px 8px;border-radius:4px">● Sby (9)</div>
+      </div>
+    </div>
+    <!-- Feed -->
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="font-size:16px">🌄</span><div><div style="font-size:11px;font-weight:600">Pak Budi · Bromo</div><div style="font-size:10px;color:var(--text3)">4 mnt lalu</div></div><div style="margin-left:auto;background:#E1F5EE;color:#085041;font-size:9px;padding:2px 6px;border-radius:4px;font-weight:600">LIVE</div></div>
+        <div style="display:flex;gap:4px"><div style="flex:1;height:50px;background:#1a3a2a;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:20px">🌄</div><div style="flex:1;height:50px;background:#0a1a1a;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:20px">🌿</div><div style="flex:1;height:50px;background:#1a1a2a;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;color:rgba(255,255,255,.5)">+13</div></div>
+      </div>
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="font-size:16px">🏛️</span><div><div style="font-size:11px;font-weight:600">Komang · Ubud Bali</div><div style="font-size:10px;color:var(--text3)">12 mnt lalu</div></div><div style="margin-left:auto;background:#E1F5EE;color:#085041;font-size:9px;padding:2px 6px;border-radius:4px;font-weight:600">LIVE</div></div>
+        <div style="display:flex;gap:4px"><div style="flex:1;height:50px;background:#2a1a0a;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:20px">🏛️</div><div style="flex:1;height:50px;background:#1a2a1a;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:20px">🌺</div><div style="flex:1;height:50px;background:#0a1a2a;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;color:rgba(255,255,255,.5)">+8</div></div>
+      </div>
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="font-size:16px">🦎</span><div><div style="font-size:11px;font-weight:600">Raden · Komodo</div><div style="font-size:10px;color:var(--text3)">28 mnt lalu</div></div><div style="margin-left:auto;background:#E1F5EE;color:#085041;font-size:9px;padding:2px 6px;border-radius:4px;font-weight:600">LIVE</div></div>
+        <div style="display:flex;gap:4px"><div style="flex:1;height:50px;background:#1a2a0a;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:20px">🦎</div><div style="flex:1;height:50px;background:#0a1a2a;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:20px">🌊</div><div style="flex:1;height:50px;background:#2a1a0a;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;color:rgba(255,255,255,.5)">+22</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MY BOOKINGS -->
+<div class="page" id="page-mybookings">
+  <div style="padding:16px">
+    <div style="display:flex;gap:8px;margin-bottom:14px">
+      <div style="font-size:13px;font-weight:700;flex:1">Booking Saya</div>
+      <div class="chip active">Semua</div><div class="chip">Aktif</div><div class="chip">Selesai</div>
+    </div>
+    <!-- Active booking with tracking -->
+    <div style="background:var(--bg2);border:1px solid #1D9E75;border-radius:12px;padding:14px;margin-bottom:10px">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px"><div style="width:8px;height:8px;border-radius:50%;background:#1D9E75;animation:p 1.5s infinite"></div><div style="font-size:11px;font-weight:600;color:#0F6E56">TRIP SEDANG BERJALAN</div><div style="margin-left:auto;font-size:11px;color:var(--text2)">#TN-0441</div></div>
+      <div style="display:flex;gap:12px">
+        <div style="width:60px;height:55px;border-radius:8px;background:linear-gradient(135deg,#1a3a2a,#2d6a3a);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0">🌄</div>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:700;margin-bottom:2px">Bromo Sunrise Experience</div>
+          <div style="font-size:11px;color:var(--text2);margin-bottom:8px">Jogja Hub · 28 Apr 2026 · 3 pax · Driver: Pak Budi</div>
+          <div style="display:flex;gap:8px">
+            <button class="btn-sm" onclick="showPage('realmap',document.querySelector('.nl:nth-child(3)'))">📍 Track Live</button>
+            <button style="background:var(--bg3);border:none;border-radius:6px;padding:5px 12px;font-size:11px;cursor:pointer;color:var(--text2)">💬 Chat Driver</button>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border)">
+        <div style="font-size:10px;color:var(--text3);margin-bottom:6px">Status perjalanan</div>
+        <div style="display:flex;align-items:center;gap:0">
+          <div style="text-align:center;flex:1"><div style="width:20px;height:20px;border-radius:50%;background:#0F6E56;color:#fff;font-size:10px;display:flex;align-items:center;justify-content:center;margin:0 auto 3px">✓</div><div style="font-size:9px;color:#0F6E56">Jemput</div></div>
+          <div style="flex:1;height:2px;background:#0F6E56"></div>
+          <div style="text-align:center;flex:1"><div style="width:20px;height:20px;border-radius:50%;background:#0F6E56;color:#fff;font-size:10px;display:flex;align-items:center;justify-content:center;margin:0 auto 3px">✓</div><div style="font-size:9px;color:#0F6E56">Perjalanan</div></div>
+          <div style="flex:1;height:2px;background:#1D9E75"></div>
+          <div style="text-align:center;flex:1"><div style="width:20px;height:20px;border-radius:50%;background:#1D9E75;color:#fff;font-size:10px;display:flex;align-items:center;justify-content:center;margin:0 auto 3px;animation:p 1s infinite">→</div><div style="font-size:9px;color:#1D9E75;font-weight:600">Di lokasi</div></div>
+          <div style="flex:1;height:2px;background:var(--border)"></div>
+          <div style="text-align:center;flex:1"><div style="width:20px;height:20px;border-radius:50%;background:var(--border);color:var(--text3);font-size:10px;display:flex;align-items:center;justify-content:center;margin:0 auto 3px">4</div><div style="font-size:9px;color:var(--text3)">Pulang</div></div>
+          <div style="flex:1;height:2px;background:var(--border)"></div>
+          <div style="text-align:center;flex:1"><div style="width:20px;height:20px;border-radius:50%;background:var(--border);color:var(--text3);font-size:10px;display:flex;align-items:center;justify-content:center;margin:0 auto 3px">✓</div><div style="font-size:9px;color:var(--text3)">Selesai</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="booking-card"><div class="bc-img" style="background:linear-gradient(135deg,#0a1a24,#1a3a5a)">🌋</div><div class="bc-content"><div class="bc-title">Ijen Blue Fire Night Trip</div><div class="bc-meta">Surabaya Hub · 15 Mar 2026 · 2 pax · Rp 3.000.000</div><div class="bc-bottom"><span class="badge bdone">✓ Selesai</span><button class="btn-sm">★ Beri Ulasan</button><button style="background:var(--bg3);border:none;border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;color:var(--text2)">Lihat Foto</button></div></div></div>
+    <div class="booking-card"><div class="bc-img" style="background:linear-gradient(135deg,#2a1a0a,#4a3015)">🏛️</div><div class="bc-content"><div class="bc-title">Yogya Heritage Full Day</div><div class="bc-meta">Jogja Hub · 10 Jan 2026 · 1 pax · Rp 850.000</div><div class="bc-bottom"><span class="badge bdone">✓ Selesai</span><span style="font-size:11px;color:#BA7517">★★★★★ Sudah diulas</span></div></div></div>
+  </div>
+</div>
+
+<!-- PROFILE -->
+<div class="page" id="page-profile">
+  <div style="padding:16px">
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px;display:flex;align-items:center;gap:14px">
+      <div style="width:56px;height:56px;border-radius:50%;background:var(--green2);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;color:#fff;flex-shrink:0">SD</div>
+      <div><div style="font-size:16px;font-weight:700;margin-bottom:2px">Sari Dewi</div><div style="font-size:12px;color:var(--text2);margin-bottom:6px">sari.dewi@email.com · Member sejak Jan 2025</div><div style="display:flex;gap:8px"><span class="badge bon">⭐ Member Setia</span><span class="badge bblue">3 Trip selesai</span></div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px"><div style="font-size:12px;font-weight:600;margin-bottom:8px">Poin Reward</div><div style="font-size:22px;font-weight:700;color:var(--green)">2.400 pts</div><div style="font-size:11px;color:var(--text2);margin-top:2px">≈ Rp 240.000 potongan</div></div>
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px"><div style="font-size:12px;font-weight:600;margin-bottom:8px">Total Pengeluaran</div><div style="font-size:22px;font-weight:700;color:var(--text)">Rp 4,8jt</div><div style="font-size:11px;color:var(--text2);margin-top:2px">Dari 3 trip bersama kami</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- BOOKING PAGE -->
+<div class="page" id="page-booking">
+  <div class="sec">
+    <div class="sec-head"><div class="sec-title">Semua Paket Wisata</div><div style="font-size:12px;color:var(--text2)">42 paket · 5 region</div></div>
+    <div class="chips">
+      <div class="chip active">Semua Region</div>
+      <div class="chip">Jogja</div>
+      <div class="chip">Surabaya</div>
+      <div class="chip">Bali</div>
+      <div class="chip">Lombok</div>
+      <div class="chip">Labuan Bajo</div>
+    </div>
+    <div class="pkg-grid">
+      <div class="pkg-card" onclick="showPage('detail',null)"><div class="pkg-img" style="background:linear-gradient(135deg,#1a3a2a,#2d6a3a)"><div style="font-size:36px;position:absolute;top:50%;left:50%;transform:translate(-50%,-60%)">🌄</div><div class="pkg-fav">♡</div><div style="background:rgba(0,0,0,.5);color:#fff;font-size:9px;padding:2px 7px;border-radius:4px">Jogja Hub</div></div><div class="pkg-body"><div class="pkg-region">Malang · Jawa Timur</div><div class="pkg-title">Bromo Sunrise Experience</div><div class="pkg-meta"><span>⏱ 1 hari</span><span>·</span><span>★ 4.9</span></div><div class="pkg-bottom"><div class="pkg-price">Rp 1.200.000<span>/pax</span></div><button class="btn-sm">Pesan</button></div></div></div>
+      <div class="pkg-card"><div class="pkg-img" style="background:linear-gradient(135deg,#0a1a24,#1a3a5a)"><div style="font-size:36px;position:absolute;top:50%;left:50%;transform:translate(-50%,-60%)">🌋</div><div class="pkg-fav">♡</div><div style="background:rgba(0,0,0,.5);color:#fff;font-size:9px;padding:2px 7px;border-radius:4px">Surabaya Hub</div></div><div class="pkg-body"><div class="pkg-region">Banyuwangi · Jawa Timur</div><div class="pkg-title">Ijen Blue Fire Night Trip</div><div class="pkg-meta"><span>⏱ 2 hari</span><span>·</span><span>★ 5.0</span></div><div class="pkg-bottom"><div class="pkg-price">Rp 1.500.000<span>/pax</span></div><button class="btn-sm">Pesan</button></div></div></div>
+      <div class="pkg-card"><div class="pkg-img" style="background:linear-gradient(135deg,#1a0a2a,#3a1a5a)"><div style="font-size:36px;position:absolute;top:50%;left:50%;transform:translate(-50%,-60%)">🌊</div><div class="pkg-fav">♡</div><div style="background:rgba(0,0,0,.5);color:#fff;font-size:9px;padding:2px 7px;border-radius:4px">Bali Hub</div></div><div class="pkg-body"><div class="pkg-region">Bali</div><div class="pkg-title">Uluwatu Sunset & Kecak</div><div class="pkg-meta"><span>⏱ 1 hari</span><span>·</span><span>★ 4.9</span></div><div class="pkg-bottom"><div class="pkg-price">Rp 950.000<span>/pax</span></div><button class="btn-sm">Pesan</button></div></div></div>
+      <div class="pkg-card"><div class="pkg-img" style="background:linear-gradient(135deg,#0a1a0a,#1a4a1a)"><div style="font-size:36px;position:absolute;top:50%;left:50%;transform:translate(-50%,-60%)">🏔️</div><div class="pkg-fav">♡</div><div style="background:rgba(0,0,0,.5);color:#fff;font-size:9px;padding:2px 7px;border-radius:4px">Lombok Hub</div></div><div class="pkg-body"><div class="pkg-region">Lombok · NTB</div><div class="pkg-title">Rinjani Day Hike</div><div class="pkg-meta"><span>⏱ 1 hari</span><span>·</span><span>★ 4.9</span></div><div class="pkg-bottom"><div class="pkg-price">Rp 1.200.000<span>/pax</span></div><button class="btn-sm">Pesan</button></div></div></div>
+      <div class="pkg-card"><div class="pkg-img" style="background:linear-gradient(135deg,#0f1a3a,#1a2d6a)"><div style="font-size:36px;position:absolute;top:50%;left:50%;transform:translate(-50%,-60%)">🤿</div><div class="pkg-fav">♡</div><div style="background:rgba(0,0,0,.5);color:#fff;font-size:9px;padding:2px 7px;border-radius:4px">Labuan Bajo Hub</div></div><div class="pkg-body"><div class="pkg-region">Labuan Bajo · NTT</div><div class="pkg-title">Komodo Sailing 3D2N</div><div class="pkg-meta"><span>⏱ 3 hari</span><span>·</span><span>★ 5.0</span></div><div class="pkg-bottom"><div class="pkg-price">Rp 6.500.000<span>/pax</span></div><button class="btn-sm">Pesan</button></div></div></div>
+      <div class="pkg-card"><div class="pkg-img" style="background:linear-gradient(135deg,#2a1a0a,#4a3015)"><div style="font-size:36px;position:absolute;top:50%;left:50%;transform:translate(-50%,-60%)">🏛️</div><div class="pkg-fav">♡</div><div style="background:rgba(0,0,0,.5);color:#fff;font-size:9px;padding:2px 7px;border-radius:4px">Jogja Hub</div></div><div class="pkg-body"><div class="pkg-region">Yogyakarta</div><div class="pkg-title">Yogya Heritage Full Day</div><div class="pkg-meta"><span>⏱ 1 hari</span><span>·</span><span>★ 4.8</span></div><div class="pkg-bottom"><div class="pkg-price">Rp 850.000<span>/pax</span></div><button class="btn-sm">Pesan</button></div></div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+function showPage(id, navEl) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nl').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  if (navEl) navEl.classList.add('active');
+}
+document.querySelectorAll('.chip').forEach(c => {
+  c.addEventListener('click', function() {
+    this.closest('.chips').querySelectorAll('.chip').forEach(x => x.classList.remove('active'));
+    this.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>

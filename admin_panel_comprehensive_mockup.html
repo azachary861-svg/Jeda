@@ -1,0 +1,558 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body,div,span,p{font-family:inherit}
+.ap{display:flex;height:680px;border-radius:12px;overflow:hidden;border:0.5px solid var(--color-border-tertiary);font-size:12px}
+/* SIDEBAR */
+.sb{width:190px;background:#081f1d;display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}
+.sb::-webkit-scrollbar{width:3px}.sb::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:2px}
+.sb-logo{padding:14px 14px 12px;border-bottom:0.5px solid rgba(255,255,255,0.07)}
+.sb-brand{font-size:14px;font-weight:500;color:#fff;letter-spacing:-0.3px}
+.sb-sub{font-size:9px;color:#5DCAA5;margin-top:1px;letter-spacing:0.08em;text-transform:uppercase}
+.sb-sec{padding:8px 0 3px 12px;font-size:9px;color:rgba(255,255,255,0.25);letter-spacing:0.1em;text-transform:uppercase;margin-top:4px}
+.sb-item{display:flex;align-items:center;gap:8px;padding:7px 12px;cursor:pointer;color:rgba(255,255,255,0.5);font-size:11.5px;border-left:2px solid transparent;transition:all 0.12s;white-space:nowrap}
+.sb-item:hover{background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.8)}
+.sb-item.active{background:rgba(93,202,165,0.1);color:#5DCAA5;border-left-color:#5DCAA5}
+.sb-item.sub{padding-left:28px;font-size:11px}
+.sb-icon{width:14px;text-align:center;flex-shrink:0;font-size:12px}
+.sb-badge{margin-left:auto;background:rgba(226,75,74,0.25);color:#f87171;font-size:9px;padding:1px 5px;border-radius:3px}
+.sb-badge.gr{background:rgba(29,158,117,0.2);color:#5DCAA5}
+.sb-bottom{margin-top:auto;padding:10px 12px;border-top:0.5px solid rgba(255,255,255,0.07);flex-shrink:0}
+.sb-av{width:26px;height:26px;border-radius:50%;background:#1D9E75;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;color:#fff;flex-shrink:0}
+/* MAIN */
+.main{flex:1;display:flex;flex-direction:column;background:var(--color-background-tertiary);min-width:0;overflow:hidden}
+.topbar{background:var(--color-background-primary);border-bottom:0.5px solid var(--color-border-tertiary);padding:0 14px;height:46px;display:flex;align-items:center;gap:8px;flex-shrink:0}
+.tb-title{font-size:14px;font-weight:500;color:var(--color-text-primary);flex:1}
+.tb-crumb{font-size:11px;color:var(--color-text-tertiary)}
+.tb-region{background:var(--color-background-secondary);border:0.5px solid var(--color-border-secondary);border-radius:6px;padding:4px 10px;font-size:11px;color:var(--color-text-secondary);cursor:pointer;white-space:nowrap}
+.tb-notif{width:26px;height:26px;border-radius:6px;background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);display:flex;align-items:center;justify-content:center;font-size:11px;cursor:pointer;position:relative;flex-shrink:0}
+.nd{position:absolute;top:4px;right:4px;width:5px;height:5px;border-radius:50%;background:#E24B4A;border:1px solid var(--color-background-primary)}
+.content{flex:1;overflow-y:auto;padding:12px}
+.content::-webkit-scrollbar{width:3px}.content::-webkit-scrollbar-thumb{background:var(--color-border-secondary);border-radius:2px}
+/* TABS within section */
+.sub-tabs{display:flex;gap:0;background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:8px;padding:3px;margin-bottom:12px;width:fit-content}
+.stab{padding:5px 12px;border-radius:6px;cursor:pointer;font-size:11px;color:var(--color-text-secondary);white-space:nowrap}
+.stab.active{background:#0F6E56;color:#fff}
+/* STAT CARDS */
+.sr{display:grid;gap:8px;margin-bottom:10px}
+.sr-4{grid-template-columns:repeat(4,1fr)}.sr-5{grid-template-columns:repeat(5,1fr)}.sr-3{grid-template-columns:repeat(3,1fr)}.sr-2{grid-template-columns:repeat(2,1fr)}
+.sc{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:8px;padding:10px 12px}
+.sc-val{font-size:18px;font-weight:500;color:var(--color-text-primary);line-height:1}
+.sc-lbl{font-size:10px;color:var(--color-text-secondary);margin-top:2px}
+.sc-d{font-size:9px;margin-top:4px}.sc-d.up{color:#1D9E75}.sc-d.dn{color:#E24B4A}
+/* CARD */
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:10px;overflow:hidden;margin-bottom:10px}
+.ch{padding:10px 12px;border-bottom:0.5px solid var(--color-border-tertiary);display:flex;align-items:center;justify-content:space-between}
+.ct{font-size:12px;font-weight:500;color:var(--color-text-primary)}
+.ca{font-size:10px;color:#0F6E56;cursor:pointer}
+/* TABLE */
+table{width:100%;border-collapse:collapse}
+th{font-size:10px;color:var(--color-text-secondary);text-align:left;padding:7px 12px;border-bottom:0.5px solid var(--color-border-tertiary);font-weight:400;white-space:nowrap}
+td{font-size:11px;color:var(--color-text-primary);padding:8px 12px;border-bottom:0.5px solid var(--color-border-tertiary);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--color-background-secondary)}
+/* BADGES */
+.b{display:inline-flex;align-items:center;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:500;white-space:nowrap}
+.bon{background:#E1F5EE;color:#085041}.bdone{background:#EAF3DE;color:#3B6D11}
+.bpend{background:#FAEEDA;color:#633806}.bcancel{background:#FCEBEB;color:#501313}
+.bblue{background:#E6F1FB;color:#0C447C}.bpurp{background:#EEEDFE;color:#26215C}
+@media(prefers-color-scheme:dark){
+  .bon{background:#085041;color:#9FE1CB}.bdone{background:#27500A;color:#C0DD97}
+  .bpend{background:#633806;color:#FAC775}.bcancel{background:#501313;color:#F7C1C1}
+  .bblue{background:#0C447C;color:#B5D4F4}.bpurp{background:#26215C;color:#CECBF6}
+}
+/* REGION CARDS */
+.rg-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:10px}
+.rg-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:8px;padding:10px;cursor:pointer;transition:border-color 0.12s}
+.rg-card:hover{border-color:#1D9E75}
+.rg-card.sel{border-color:#1D9E75;background:#E1F5EE}
+@media(prefers-color-scheme:dark){.rg-card.sel{background:#085041}}
+.rg-name{font-size:11px;font-weight:500;color:var(--color-text-primary);margin-bottom:6px;display:flex;align-items:center;gap:5px}
+.rg-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.rg-stat{font-size:16px;font-weight:500;color:var(--color-text-primary)}
+.rg-sub{font-size:9px;color:var(--color-text-secondary);margin-top:1px}
+.rg-bar{height:3px;background:var(--color-background-secondary);border-radius:2px;margin-top:7px}
+.rg-bar-fill{height:3px;border-radius:2px;transition:width 0.3s}
+/* MINI PROGRESS */
+.prog-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.prog-label{font-size:10px;color:var(--color-text-secondary);width:80px;flex-shrink:0}
+.prog-bar{flex:1;height:5px;background:var(--color-background-secondary);border-radius:3px}
+.prog-fill{height:5px;border-radius:3px}
+.prog-val{font-size:10px;color:var(--color-text-secondary);width:30px;text-align:right;flex-shrink:0}
+/* LIVE FEED */
+.feed-item{display:flex;gap:8px;padding:8px 12px;border-bottom:0.5px solid var(--color-border-tertiary);align-items:flex-start}
+.feed-item:last-child{border-bottom:none}
+.feed-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:3px}
+.feed-time{font-size:10px;color:var(--color-text-tertiary);white-space:nowrap;margin-left:auto;flex-shrink:0}
+/* DISPATCH */
+.disp-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.disp-trip{background:var(--color-background-secondary);border-radius:8px;padding:10px 12px;border:0.5px solid var(--color-border-tertiary)}
+.mini-map{background:#0B2D2A;border-radius:8px;height:120px;position:relative;display:flex;align-items:center;justify-content:center;margin-bottom:10px}
+.map-pin{position:absolute;display:flex;flex-direction:column;align-items:center;gap:1px;cursor:pointer}
+.map-pin-circle{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;border:1.5px solid rgba(255,255,255,0.4)}
+.map-pin-label{font-size:8px;background:rgba(0,0,0,0.6);color:#fff;padding:1px 4px;border-radius:2px;white-space:nowrap}
+.pulse-ring{position:absolute;width:18px;height:18px;border-radius:50%;animation:pr 2s ease-out infinite}
+@keyframes pr{0%{transform:scale(1);opacity:.7}100%{transform:scale(2.5);opacity:0}}
+/* FLEET */
+.fleet-item{display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:0.5px solid var(--color-border-tertiary)}
+.fleet-item:last-child{border-bottom:none}
+.fleet-icon{width:28px;height:28px;border-radius:6px;background:var(--color-background-secondary);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.fuel-bar{width:50px;height:4px;background:var(--color-background-secondary);border-radius:2px}
+.fuel-fill{height:4px;border-radius:2px}
+/* ANALYTICS */
+.bar-chart{display:flex;align-items:flex-end;gap:6px;height:80px;margin-bottom:6px}
+.bc-bar{flex:1;border-radius:3px 3px 0 0;min-width:0;transition:height 0.3s;cursor:pointer;position:relative}
+.bc-label{font-size:9px;color:var(--color-text-secondary);text-align:center;margin-top:4px}
+/* HR */
+.hr-item{display:flex;align-items:center;gap:8px;padding:7px 12px;border-bottom:0.5px solid var(--color-border-tertiary)}
+.hr-item:last-child{border-bottom:none}
+.hr-av{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;flex-shrink:0}
+.rating-stars{color:#BA7517;font-size:10px}
+/* SECTION DISPLAY */
+.tab-content{display:none}.tab-content.active{display:block}
+/* ALERT */
+.alert-bar{background:rgba(186,117,23,0.1);border:0.5px solid rgba(186,117,23,0.3);border-radius:6px;padding:7px 12px;margin-bottom:10px;display:flex;align-items:center;gap:8px;font-size:11px;color:#BA7517}
+</style>
+
+<div class="ap">
+<!-- SIDEBAR -->
+<div class="sb">
+  <div class="sb-logo">
+    <div class="sb-brand">TripNesia</div>
+    <div class="sb-sub">HQ Admin · Indonesia</div>
+  </div>
+
+  <div class="sb-sec">Headquarters</div>
+  <div class="sb-item active" onclick="setTab('hq',this)"><span class="sb-icon">◈</span>HQ Overview</div>
+  <div class="sb-item" onclick="setTab('dispatch',this)"><span class="sb-icon">◎</span>Dispatch Center<span class="sb-badge">4</span></div>
+  <div class="sb-item" onclick="setTab('analytics',this)"><span class="sb-icon">▣</span>Analytics</div>
+
+  <div class="sb-sec">Regional Hubs</div>
+  <div class="sb-item" onclick="setTab('reg',this)"><span class="sb-icon">●</span>Jogja Hub</div>
+  <div class="sb-item" onclick="setTab('reg',this)"><span class="sb-icon">●</span>Surabaya Hub</div>
+  <div class="sb-item" onclick="setTab('reg',this)"><span class="sb-icon">●</span>Bali Hub<span class="sb-badge gr">Top</span></div>
+  <div class="sb-item" onclick="setTab('reg',this)"><span class="sb-icon">●</span>Lombok Hub</div>
+  <div class="sb-item" onclick="setTab('reg',this)"><span class="sb-icon">●</span>Labuan Bajo Hub</div>
+
+  <div class="sb-sec">Operations</div>
+  <div class="sb-item" onclick="setTab('trips',this)"><span class="sb-icon">✈</span>Trip Management</div>
+  <div class="sb-item" onclick="setTab('fleet',this)"><span class="sb-icon">⊡</span>Fleet & Armada</div>
+  <div class="sb-item" onclick="setTab('paket',this)"><span class="sb-icon">❖</span>Paket & Harga</div>
+
+  <div class="sb-sec">People & HR</div>
+  <div class="sb-item" onclick="setTab('hr',this)"><span class="sb-icon">◍</span>Tim Lapangan</div>
+  <div class="sb-item" onclick="setTab('payroll',this)"><span class="sb-icon">⊛</span>Penggajian</div>
+  <div class="sb-item" onclick="setTab('attendance',this)"><span class="sb-icon">◫</span>Absensi & Jadwal</div>
+
+  <div class="sb-sec">Finance</div>
+  <div class="sb-item" onclick="setTab('finance',this)"><span class="sb-icon">◉</span>Laporan Keuangan</div>
+  <div class="sb-item" onclick="setTab('finance',this)"><span class="sb-icon">⊘</span>P&amp;L per Region</div>
+  <div class="sb-item" onclick="setTab('finance',this)"><span class="sb-icon">◦</span>Pajak &amp; Compliance</div>
+
+  <div class="sb-sec">Customer</div>
+  <div class="sb-item" onclick="setTab('crm',this)"><span class="sb-icon">◁</span>CRM &amp; Kontak<span class="sb-badge">12</span></div>
+  <div class="sb-item" onclick="setTab('crm',this)"><span class="sb-icon">◁</span>Chat Center</div>
+
+  <div class="sb-bottom">
+    <div style="display:flex;align-items:center;gap:8px">
+      <div class="sb-av">MS</div>
+      <div><div style="font-size:11px;color:rgba(255,255,255,0.75)">Mas Shafly</div><div style="font-size:9px;color:rgba(255,255,255,0.35)">Super Admin · HQ</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="tb-title" id="ptitle">HQ Overview</div>
+    <div class="tb-region">▾ Semua Region</div>
+    <div style="font-size:10px;color:var(--color-text-tertiary);white-space:nowrap">29 Apr 2026</div>
+    <div class="tb-notif" style="font-size:11px">◐<div class="nd"></div></div>
+  </div>
+
+  <div class="content">
+
+    <!-- HQ OVERVIEW -->
+    <div class="tab-content active" id="tab-hq">
+      <div class="alert-bar">⚠ Labuan Bajo Hub — 2 driver belum konfirmasi jadwal trip besok. Segera assign.</div>
+
+      <div class="sr sr-5">
+        <div class="sc"><div class="sc-val">47</div><div class="sc-lbl">Trip aktif hari ini</div><div class="sc-d up">+8 dari kemarin</div></div>
+        <div class="sc"><div class="sc-val">Rp 182jt</div><div class="sc-lbl">Revenue bulan ini</div><div class="sc-d up">+14% vs lalu</div></div>
+        <div class="sc"><div class="sc-val">83</div><div class="sc-lbl">Tim lapangan aktif</div><div class="sc-d up">5 region</div></div>
+        <div class="sc"><div class="sc-val">97%</div><div class="sc-lbl">Kepuasan klien</div><div class="sc-d up">+1% bulan ini</div></div>
+        <div class="sc"><div class="sc-val">38</div><div class="sc-lbl">Armada aktif</div><div class="sc-d dn">2 dalam servis</div></div>
+      </div>
+
+      <div style="font-size:11px;font-weight:500;color:var(--color-text-primary);margin-bottom:7px">Performa per regional hub</div>
+      <div class="rg-grid">
+        <div class="rg-card">
+          <div class="rg-name"><div class="rg-dot" style="background:#1D9E75"></div>Jogja</div>
+          <div class="rg-stat">Rp 52jt</div><div class="rg-sub">14 trip aktif · 22 tim</div>
+          <div class="rg-bar"><div class="rg-bar-fill" style="width:72%;background:#1D9E75"></div></div>
+        </div>
+        <div class="rg-card">
+          <div class="rg-name"><div class="rg-dot" style="background:#BA7517"></div>Surabaya</div>
+          <div class="rg-stat">Rp 38jt</div><div class="rg-sub">9 trip aktif · 16 tim</div>
+          <div class="rg-bar"><div class="rg-bar-fill" style="width:52%;background:#BA7517"></div></div>
+        </div>
+        <div class="rg-card sel">
+          <div class="rg-name"><div class="rg-dot" style="background:#534AB7"></div>Bali</div>
+          <div class="rg-stat">Rp 61jt</div><div class="rg-sub">18 trip aktif · 24 tim</div>
+          <div class="rg-bar"><div class="rg-bar-fill" style="width:85%;background:#534AB7"></div></div>
+        </div>
+        <div class="rg-card">
+          <div class="rg-name"><div class="rg-dot" style="background:#993C1D"></div>Lombok</div>
+          <div class="rg-stat">Rp 22jt</div><div class="rg-sub">5 trip aktif · 12 tim</div>
+          <div class="rg-bar"><div class="rg-bar-fill" style="width:30%;background:#993C1D"></div></div>
+        </div>
+        <div class="rg-card">
+          <div class="rg-name"><div class="rg-dot" style="background:#E24B4A"></div>Labuan Bajo</div>
+          <div class="rg-stat">Rp 9jt</div><div class="rg-sub">2 trip aktif · 9 tim</div>
+          <div class="rg-bar"><div class="rg-bar-fill" style="width:12%;background:#E24B4A"></div></div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div class="card">
+          <div class="ch"><div class="ct">Live ops feed</div><div class="ca">Lihat semua</div></div>
+          <div class="feed-item"><div class="feed-dot" style="background:#1D9E75"></div><div><div style="font-size:11px;color:var(--color-text-primary)">Pak Budi (Jogja) mulai trip Bromo</div><div style="font-size:10px;color:var(--color-text-secondary)">#TN-0441 · 3 pax · GPS aktif</div></div><div class="feed-time">04:12</div></div>
+          <div class="feed-item"><div class="feed-dot" style="background:#534AB7"></div><div><div style="font-size:11px;color:var(--color-text-primary)">Komang (Bali) selesai trip Uluwatu</div><div style="font-size:10px;color:var(--color-text-secondary)">#TN-0389 · Rating 5.0 ★</div></div><div class="feed-time">03:55</div></div>
+          <div class="feed-item"><div class="feed-dot" style="background:#BA7517"></div><div><div style="font-size:11px;color:var(--color-text-primary)">Booking baru masuk — Surabaya</div><div style="font-size:10px;color:var(--color-text-secondary)">#TN-0449 · Kawah Ijen · 4 pax</div></div><div class="feed-time">03:41</div></div>
+          <div class="feed-item"><div class="feed-dot" style="background:#E24B4A"></div><div><div style="font-size:11px;color:var(--color-text-primary)">Alert: Driver belum assign — LBJ</div><div style="font-size:10px;color:var(--color-text-secondary)">#TN-0450 · besok 06:00</div></div><div class="feed-time">03:20</div></div>
+          <div class="feed-item"><div class="feed-dot" style="background:#993C1D"></div><div><div style="font-size:11px;color:var(--color-text-primary)">Wayan (Lombok) upload 8 foto</div><div style="font-size:10px;color:var(--color-text-secondary)">#TN-0431 · Rinjani basecamp</div></div><div class="feed-time">02:58</div></div>
+        </div>
+        <div class="card">
+          <div class="ch"><div class="ct">Target vs aktual (bulan ini)</div></div>
+          <div style="padding:10px 12px">
+            <div class="prog-row"><div class="prog-label">Bali</div><div class="prog-bar"><div class="prog-fill" style="width:85%;background:#534AB7"></div></div><div class="prog-val">85%</div></div>
+            <div class="prog-row"><div class="prog-label">Jogja</div><div class="prog-bar"><div class="prog-fill" style="width:72%;background:#1D9E75"></div></div><div class="prog-val">72%</div></div>
+            <div class="prog-row"><div class="prog-label">Surabaya</div><div class="prog-bar"><div class="prog-fill" style="width:52%;background:#BA7517"></div></div><div class="prog-val">52%</div></div>
+            <div class="prog-row"><div class="prog-label">Lombok</div><div class="prog-bar"><div class="prog-fill" style="width:30%;background:#993C1D"></div></div><div class="prog-val">30%</div></div>
+            <div class="prog-row"><div class="prog-label">Labuan Bajo</div><div class="prog-bar"><div class="prog-fill" style="width:12%;background:#E24B4A"></div></div><div class="prog-val">12%</div></div>
+            <div style="margin-top:10px;padding-top:8px;border-top:0.5px solid var(--color-border-tertiary)">
+              <div style="font-size:10px;color:var(--color-text-secondary);margin-bottom:4px">Catatan: Labuan Bajo baru 2 bulan beroperasi. Target disesuaikan.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DISPATCH CENTER -->
+    <div class="tab-content" id="tab-dispatch">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+        <div class="sc"><div class="sc-val">47</div><div class="sc-lbl">Trip live sekarang</div><div class="sc-d up">semua region</div></div>
+        <div class="sc"><div class="sc-val">8</div><div class="sc-lbl">Perlu assign driver</div><div class="sc-d dn">segera tindak lanjut</div></div>
+      </div>
+      <div class="mini-map">
+        <svg width="100%" height="100%" viewBox="0 0 490 120" style="position:absolute;inset:0;opacity:0.15"><ellipse cx="200" cy="60" rx="180" ry="45" fill="none" stroke="rgba(93,202,165,0.4)" stroke-width="0.5"/><path d="M80,60 Q140,40 200,55 Q260,70 320,50 Q360,38 400,52" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.5"/></svg>
+        <div class="map-pin" style="left:18%;top:20%"><div class="pulse-ring" style="background:rgba(29,158,117,0.3)"></div><div class="map-pin-circle" style="background:#1D9E75;color:#fff">JG</div><div class="map-pin-label">Jogja 14 trip</div></div>
+        <div class="map-pin" style="left:38%;top:15%"><div class="pulse-ring" style="background:rgba(186,117,23,0.3)"></div><div class="map-pin-circle" style="background:#BA7517;color:#fff">SBY</div><div class="map-pin-label">Sby 9 trip</div></div>
+        <div class="map-pin" style="left:56%;top:25%"><div class="pulse-ring" style="background:rgba(83,74,183,0.3)"></div><div class="map-pin-circle" style="background:#534AB7;color:#fff">BL</div><div class="map-pin-label">Bali 18 trip</div></div>
+        <div class="map-pin" style="left:64%;top:50%"><div class="map-pin-circle" style="background:#993C1D;color:#fff">LK</div><div class="map-pin-label">Lombok 5</div></div>
+        <div class="map-pin" style="left:78%;top:38%"><div class="map-pin-circle" style="background:#E24B4A;color:#fff">LBJ</div><div class="map-pin-label">Labuan Bajo 2</div></div>
+      </div>
+      <div class="card">
+        <div class="ch"><div class="ct">Trip butuh assign driver</div><div class="ca">Assign semua otomatis</div></div>
+        <table>
+          <thead><tr><th>ID Trip</th><th>Paket</th><th>Region</th><th>Klien</th><th>Waktu</th><th>Pax</th><th>Action</th></tr></thead>
+          <tbody>
+            <tr><td>#TN-0450</td><td>Komodo Tour</td><td><span class="b bcancel">Labuan Bajo</span></td><td>Yusuf Rahman</td><td>Besok 06:00</td><td>4</td><td><span class="b bon" style="cursor:pointer">Assign →</span></td></tr>
+            <tr><td>#TN-0451</td><td>Rinjani Day Trip</td><td><span class="b bpend">Lombok</span></td><td>Clara Susanto</td><td>Besok 05:30</td><td>3</td><td><span class="b bon" style="cursor:pointer">Assign →</span></td></tr>
+            <tr><td>#TN-0452</td><td>Bromo Jeep</td><td><span class="b bdone">Jogja</span></td><td>Budi Santoso</td><td>30 Apr 03:00</td><td>6</td><td><span class="b bon" style="cursor:pointer">Assign →</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="disp-grid">
+        <div class="card" style="margin:0">
+          <div class="ch"><div class="ct">Driver on duty sekarang</div></div>
+          <div class="feed-item"><div class="feed-dot" style="background:#1D9E75"></div><div><div style="font-size:11px;color:var(--color-text-primary)">Pak Budi · Jogja</div><div style="font-size:10px;color:var(--color-text-secondary)">Bromo Sunrise #0441 · 3 pax</div></div><div class="feed-time"><span class="b bon">Live</span></div></div>
+          <div class="feed-item"><div class="feed-dot" style="background:#534AB7"></div><div><div style="font-size:11px;color:var(--color-text-primary)">Komang · Bali</div><div style="font-size:10px;color:var(--color-text-secondary)">Ubud Tour #0444 · 2 pax</div></div><div class="feed-time"><span class="b bon">Live</span></div></div>
+          <div class="feed-item"><div class="feed-dot" style="background:#534AB7"></div><div><div style="font-size:11px;color:var(--color-text-primary)">Nyoman · Bali</div><div style="font-size:10px;color:var(--color-text-secondary)">Uluwatu Trip #0445 · 5 pax</div></div><div class="feed-time"><span class="b bon">Live</span></div></div>
+          <div class="feed-item"><div class="feed-dot" style="background:#BA7517"></div><div><div style="font-size:11px;color:var(--color-text-primary)">Mas Doni · Surabaya</div><div style="font-size:10px;color:var(--color-text-secondary)">Kawah Ijen #0443 · 4 pax</div></div><div class="feed-time"><span class="b bon">Live</span></div></div>
+        </div>
+        <div class="card" style="margin:0">
+          <div class="ch"><div class="ct">Driver standby (siap assign)</div></div>
+          <div class="feed-item"><div class="feed-dot" style="background:#888"></div><div><div style="font-size:11px;color:var(--color-text-primary)">Pak Agus · Jogja</div><div style="font-size:10px;color:var(--color-text-secondary)">Tersedia mulai 14:00</div></div><div class="feed-time"><span class="b bpend">Standby</span></div></div>
+          <div class="feed-item"><div class="feed-dot" style="background:#888"></div><div><div style="font-size:11px;color:var(--color-text-primary)">Made Ardika · Bali</div><div style="font-size:10px;color:var(--color-text-secondary)">Tersedia seharian</div></div><div class="feed-time"><span class="b bpend">Standby</span></div></div>
+          <div class="feed-item"><div class="feed-dot" style="background:#888"></div><div><div style="font-size:11px;color:var(--color-text-primary)">Wayan Suda · Lombok</div><div style="font-size:10px;color:var(--color-text-secondary)">Tersedia mulai 08:00</div></div><div class="feed-time"><span class="b bpend">Standby</span></div></div>
+          <div class="feed-item"><div class="feed-dot" style="background:#888"></div><div><div style="font-size:11px;color:var(--color-text-primary)">Mas Hendra · Jogja</div><div style="font-size:10px;color:var(--color-text-secondary)">Tersedia besok pagi</div></div><div class="feed-time"><span class="b bblue">Besok</span></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ANALYTICS -->
+    <div class="tab-content" id="tab-analytics">
+      <div class="sub-tabs">
+        <div class="stab active">Revenue</div>
+        <div class="stab">Booking</div>
+        <div class="stab">Kepuasan</div>
+        <div class="stab">Tim</div>
+      </div>
+      <div class="sr sr-3">
+        <div class="sc"><div class="sc-val">Rp 182jt</div><div class="sc-lbl">Total revenue bulan ini</div><div class="sc-d up">+14% vs bulan lalu</div></div>
+        <div class="sc"><div class="sc-val">341</div><div class="sc-lbl">Total booking bulan ini</div><div class="sc-d up">+22 booking</div></div>
+        <div class="sc"><div class="sc-val">Bali</div><div class="sc-lbl">Region terbaik bulan ini</div><div class="sc-d up">Rp 61jt · 18 trip/hari</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div class="card">
+          <div class="ch"><div class="ct">Revenue per region (bulan ini)</div></div>
+          <div style="padding:12px">
+            <div class="bar-chart">
+              <div style="display:flex;flex-direction:column;align-items:center;flex:1"><div class="bc-bar" style="height:60%;background:#1D9E75;width:100%"></div><div class="bc-label">Jogja</div><div style="font-size:9px;text-align:center;color:var(--color-text-secondary)">52jt</div></div>
+              <div style="display:flex;flex-direction:column;align-items:center;flex:1"><div class="bc-bar" style="height:44%;background:#BA7517;width:100%"></div><div class="bc-label">Sby</div><div style="font-size:9px;text-align:center;color:var(--color-text-secondary)">38jt</div></div>
+              <div style="display:flex;flex-direction:column;align-items:center;flex:1"><div class="bc-bar" style="height:100%;background:#534AB7;width:100%"></div><div class="bc-label">Bali</div><div style="font-size:9px;text-align:center;color:var(--color-text-secondary)">61jt</div></div>
+              <div style="display:flex;flex-direction:column;align-items:center;flex:1"><div class="bc-bar" style="height:25%;background:#993C1D;width:100%"></div><div class="bc-label">LK</div><div style="font-size:9px;text-align:center;color:var(--color-text-secondary)">22jt</div></div>
+              <div style="display:flex;flex-direction:column;align-items:center;flex:1"><div class="bc-bar" style="height:10%;background:#E24B4A;width:100%"></div><div class="bc-label">LBJ</div><div style="font-size:9px;text-align:center;color:var(--color-text-secondary)">9jt</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="ch"><div class="ct">Perbandingan region</div></div>
+          <table>
+            <thead><tr><th>Region</th><th>Revenue</th><th>Booking</th><th>Rating</th><th>Growth</th></tr></thead>
+            <tbody>
+              <tr><td><span class="b bpurp">Bali</span></td><td>Rp 61jt</td><td>128</td><td>4.9★</td><td class="sc-d up">+18%</td></tr>
+              <tr><td><span class="b bdone">Jogja</span></td><td>Rp 52jt</td><td>97</td><td>4.8★</td><td class="sc-d up">+11%</td></tr>
+              <tr><td><span class="b bpend">Surabaya</span></td><td>Rp 38jt</td><td>74</td><td>4.7★</td><td class="sc-d up">+9%</td></tr>
+              <tr><td><span class="b bcancel">Lombok</span></td><td>Rp 22jt</td><td>33</td><td>4.9★</td><td class="sc-d up">+35%</td></tr>
+              <tr><td><span class="b bblue">Labuan Bajo</span></td><td>Rp 9jt</td><td>9</td><td>5.0★</td><td style="font-size:9px;color:var(--color-text-secondary)">Baru launch</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- REGIONAL HUB (generic) -->
+    <div class="tab-content" id="tab-reg">
+      <div class="sub-tabs">
+        <div class="stab active">Overview</div>
+        <div class="stab">Trip</div>
+        <div class="stab">Tim</div>
+        <div class="stab">Armada</div>
+        <div class="stab">Finance</div>
+      </div>
+      <div class="sr sr-4">
+        <div class="sc"><div class="sc-val">18</div><div class="sc-lbl">Trip aktif hari ini</div><div class="sc-d up">+3 dari kemarin</div></div>
+        <div class="sc"><div class="sc-val">Rp 61jt</div><div class="sc-lbl">Revenue bulan ini</div><div class="sc-d up">+18% vs lalu</div></div>
+        <div class="sc"><div class="sc-val">24</div><div class="sc-lbl">Tim di region ini</div><div class="sc-d up">14 driver · 10 foto</div></div>
+        <div class="sc"><div class="sc-val">4.9★</div><div class="sc-lbl">Rating rata-rata</div><div class="sc-d up">128 ulasan</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div class="card">
+          <div class="ch"><div class="ct">Tim lapangan regional</div><div class="ca">+ Tambah</div></div>
+          <div class="hr-item"><div class="hr-av" style="background:#534AB7;color:#fff">KS</div><div style="flex:1"><div style="font-size:11px;font-weight:500;color:var(--color-text-primary)">Komang Sujana</div><div style="font-size:10px;color:var(--color-text-secondary)">Driver utama · Bali</div></div><span class="b bon">On trip</span></div>
+          <div class="hr-item"><div class="hr-av" style="background:#534AB7;color:#fff">NA</div><div style="flex:1"><div style="font-size:11px;font-weight:500;color:var(--color-text-primary)">Nyoman Ardika</div><div style="font-size:10px;color:var(--color-text-secondary)">Driver · Bali</div></div><span class="b bon">On trip</span></div>
+          <div class="hr-item"><div class="hr-av" style="background:#BA7517;color:#fff">MA</div><div style="flex:1"><div style="font-size:11px;font-weight:500;color:var(--color-text-primary)">Made Aryanta</div><div style="font-size:10px;color:var(--color-text-secondary)">Fotografer · Bali</div></div><span class="b bpend">Standby</span></div>
+          <div class="hr-item"><div class="hr-av" style="background:#888;color:#fff">WS</div><div style="flex:1"><div style="font-size:11px;font-weight:500;color:var(--color-text-primary)">Wayan Suartha</div><div style="font-size:10px;color:var(--color-text-secondary)">Driver · Bali</div></div><span class="b bblue">Off hari ini</span></div>
+        </div>
+        <div class="card">
+          <div class="ch"><div class="ct">Armada regional</div></div>
+          <div class="fleet-item"><div class="fleet-icon">🚐</div><div style="flex:1"><div style="font-size:11px;font-weight:500;color:var(--color-text-primary)">Toyota HiAce · BA 1234 KD</div><div style="font-size:10px;color:var(--color-text-secondary)">8 pax · Komang</div></div><div><div style="font-size:9px;color:var(--color-text-secondary);margin-bottom:2px">BBM</div><div class="fuel-bar"><div class="fuel-fill" style="width:75%;background:#1D9E75"></div></div></div></div>
+          <div class="fleet-item"><div class="fleet-icon">🚗</div><div style="flex:1"><div style="font-size:11px;font-weight:500;color:var(--color-text-primary)">Toyota Avanza · BA 5678 LM</div><div style="font-size:10px;color:var(--color-text-secondary)">7 pax · Nyoman</div></div><div><div style="font-size:9px;color:var(--color-text-secondary);margin-bottom:2px">BBM</div><div class="fuel-bar"><div class="fuel-fill" style="width:40%;background:#BA7517"></div></div></div></div>
+          <div class="fleet-item"><div class="fleet-icon">🚗</div><div style="flex:1"><div style="font-size:11px;font-weight:500;color:var(--color-text-primary)">Suzuki APV · BA 9012 NP</div><div style="font-size:10px;color:var(--color-text-secondary)">6 pax · Made</div></div><div><div style="font-size:9px;color:var(--color-text-secondary);margin-bottom:2px">BBM</div><div class="fuel-bar"><div class="fuel-fill" style="width:60%;background:#1D9E75"></div></div></div></div>
+          <div class="fleet-item"><div class="fleet-icon">🔧</div><div style="flex:1"><div style="font-size:11px;font-weight:500;color:var(--color-text-primary)">Mitsubishi L300 · BA 3456 QR</div><div style="font-size:10px;color:var(--color-text-secondary)">Dalam servis</div></div><span class="b bcancel">Servis</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HR -->
+    <div class="tab-content" id="tab-hr">
+      <div class="sub-tabs">
+        <div class="stab active">Semua Tim</div>
+        <div class="stab">Jogja</div>
+        <div class="stab">Surabaya</div>
+        <div class="stab">Bali</div>
+        <div class="stab">Lombok</div>
+        <div class="stab">Labuan Bajo</div>
+      </div>
+      <div class="card">
+        <div class="ch"><div class="ct">Direktori tim lapangan — 83 orang</div><div class="ca">+ Tambah anggota</div></div>
+        <table>
+          <thead><tr><th>Nama</th><th>Role</th><th>Region</th><th>Status</th><th>Rating</th><th>Trip (bulan)</th><th>Sertifikasi</th></tr></thead>
+          <tbody>
+            <tr><td><b style="font-weight:500">Komang Sujana</b></td><td>Driver</td><td><span class="b bpurp">Bali</span></td><td><span class="b bon">On trip</span></td><td>4.98★</td><td>24</td><td><span class="b bdone">Lengkap</span></td></tr>
+            <tr><td><b style="font-weight:500">Pak Budi</b></td><td>Driver</td><td><span class="b bdone">Jogja</span></td><td><span class="b bon">On trip</span></td><td>4.91★</td><td>20</td><td><span class="b bdone">Lengkap</span></td></tr>
+            <tr><td><b style="font-weight:500">Mas Rizki</b></td><td>Fotografer</td><td><span class="b bdone">Jogja</span></td><td><span class="b bpend">Standby</span></td><td>4.95★</td><td>18</td><td><span class="b bpend">Perlu update</span></td></tr>
+            <tr><td><b style="font-weight:500">Wayan Suda</b></td><td>Driver</td><td><span class="b bcancel">Lombok</span></td><td><span class="b bpend">Standby</span></td><td>4.88★</td><td>11</td><td><span class="b bdone">Lengkap</span></td></tr>
+            <tr><td><b style="font-weight:500">Mas Doni</b></td><td>Driver</td><td><span class="b bpend">Surabaya</span></td><td><span class="b bon">On trip</span></td><td>4.82★</td><td>16</td><td><span class="b bcancel">Expired</span></td></tr>
+            <tr><td><b style="font-weight:500">Raden Bagas</b></td><td>Guide</td><td><span class="b bblue">Labuan Bajo</span></td><td><span class="b bon">On trip</span></td><td>5.0★</td><td>4</td><td><span class="b bdone">Lengkap</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- FINANCE -->
+    <div class="tab-content" id="tab-finance">
+      <div class="sub-tabs">
+        <div class="stab active">P&amp;L per Region</div>
+        <div class="stab">Transaksi</div>
+        <div class="stab">Penggajian</div>
+        <div class="stab">Pajak</div>
+      </div>
+      <div class="sr sr-3">
+        <div class="sc"><div class="sc-val">Rp 182jt</div><div class="sc-lbl">Total pemasukan</div><div class="sc-d up">+14% vs lalu</div></div>
+        <div class="sc"><div class="sc-val">Rp 89jt</div><div class="sc-lbl">Total pengeluaran</div><div class="sc-d dn">ops + gaji + fleet</div></div>
+        <div class="sc"><div class="sc-val">Rp 93jt</div><div class="sc-lbl">Laba bersih</div><div class="sc-d up">Margin 51%</div></div>
+      </div>
+      <div class="card">
+        <div class="ch"><div class="ct">P&amp;L breakdown per regional hub</div><div class="ca">Export Excel</div></div>
+        <table>
+          <thead><tr><th>Region</th><th>Pemasukan</th><th>Ops Cost</th><th>Gaji Tim</th><th>Fleet Cost</th><th>Laba Bersih</th><th>Margin</th></tr></thead>
+          <tbody>
+            <tr><td><span class="b bpurp">Bali</span></td><td>Rp 61jt</td><td>Rp 12jt</td><td>Rp 18jt</td><td>Rp 4jt</td><td><b style="font-weight:500;color:#1D9E75">Rp 27jt</b></td><td>44%</td></tr>
+            <tr><td><span class="b bdone">Jogja</span></td><td>Rp 52jt</td><td>Rp 9jt</td><td>Rp 14jt</td><td>Rp 3jt</td><td><b style="font-weight:500;color:#1D9E75">Rp 26jt</b></td><td>50%</td></tr>
+            <tr><td><span class="b bpend">Surabaya</span></td><td>Rp 38jt</td><td>Rp 7jt</td><td>Rp 10jt</td><td>Rp 2,5jt</td><td><b style="font-weight:500;color:#1D9E75">Rp 18,5jt</b></td><td>49%</td></tr>
+            <tr><td><span class="b bcancel">Lombok</span></td><td>Rp 22jt</td><td>Rp 4jt</td><td>Rp 7jt</td><td>Rp 2jt</td><td><b style="font-weight:500;color:#1D9E75">Rp 9jt</b></td><td>41%</td></tr>
+            <tr><td><span class="b bblue">Labuan Bajo</span></td><td>Rp 9jt</td><td>Rp 3jt</td><td>Rp 4jt</td><td>Rp 1,5jt</td><td><b style="font-weight:500;color:#BA7517">Rp 0,5jt</b></td><td>6%</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TRIPS -->
+    <div class="tab-content" id="tab-trips">
+      <div class="sr sr-4">
+        <div class="sc"><div class="sc-val">47</div><div class="sc-lbl">Trip aktif sekarang</div></div>
+        <div class="sc"><div class="sc-val">341</div><div class="sc-lbl">Total booking bulan ini</div></div>
+        <div class="sc"><div class="sc-val">8</div><div class="sc-lbl">Butuh assign driver</div><div class="sc-d dn">urgent</div></div>
+        <div class="sc"><div class="sc-val">Rp 182jt</div><div class="sc-lbl">Revenue dari trip</div></div>
+      </div>
+      <div class="card">
+        <div class="ch"><div class="ct">Semua trip (lintas region)</div><div class="ca">+ Buat trip baru</div></div>
+        <table>
+          <thead><tr><th>ID</th><th>Paket</th><th>Region</th><th>Klien</th><th>Driver</th><th>Tgl</th><th>Status</th><th>Total</th></tr></thead>
+          <tbody>
+            <tr><td>#TN-0450</td><td>Komodo Sailing</td><td><span class="b bblue">Labuan Bajo</span></td><td>Yusuf R. (4p)</td><td>—</td><td>Besok</td><td><span class="b bcancel">Perlu assign</span></td><td>Rp 4,8jt</td></tr>
+            <tr><td>#TN-0449</td><td>Kawah Ijen</td><td><span class="b bpend">Surabaya</span></td><td>Dewi A. (3p)</td><td>Mas Doni</td><td>29 Apr</td><td><span class="b bpend">Confirmed</span></td><td>Rp 4,5jt</td></tr>
+            <tr><td>#TN-0448</td><td>Ubud Heritage</td><td><span class="b bpurp">Bali</span></td><td>James T. (2p)</td><td>Komang</td><td>29 Apr</td><td><span class="b bon">On trip</span></td><td>Rp 2,4jt</td></tr>
+            <tr><td>#TN-0447</td><td>Rinjani Trekking</td><td><span class="b bcancel">Lombok</span></td><td>Sarah M. (4p)</td><td>Wayan</td><td>28 Apr</td><td><span class="b bon">On trip</span></td><td>Rp 6,2jt</td></tr>
+            <tr><td>#TN-0446</td><td>Bromo Sunrise</td><td><span class="b bdone">Jogja</span></td><td>Bimo P. (2p)</td><td>Pak Budi</td><td>28 Apr</td><td><span class="b bon">On trip</span></td><td>Rp 2,4jt</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- FLEET -->
+    <div class="tab-content" id="tab-fleet">
+      <div class="sr sr-4">
+        <div class="sc"><div class="sc-val">38</div><div class="sc-lbl">Armada aktif</div></div>
+        <div class="sc"><div class="sc-val">2</div><div class="sc-lbl">Dalam servis</div><div class="sc-d dn">estimasi 3 hari</div></div>
+        <div class="sc"><div class="sc-val">Rp 13jt</div><div class="sc-lbl">Biaya fleet bulan ini</div></div>
+        <div class="sc"><div class="sc-val">6</div><div class="sc-lbl">Service jatuh tempo</div><div class="sc-d dn">dalam 30 hari</div></div>
+      </div>
+      <div class="card">
+        <div class="ch"><div class="ct">Inventaris armada per region</div><div class="ca">+ Tambah kendaraan</div></div>
+        <table>
+          <thead><tr><th>Kendaraan</th><th>Plat</th><th>Region</th><th>Kapasitas</th><th>Driver</th><th>BBM</th><th>Servis berikut</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>Toyota HiAce</td><td>AB 1234 CD</td><td><span class="b bdone">Jogja</span></td><td>8 pax</td><td>Pak Budi</td><td><div style="display:flex;align-items:center;gap:4px"><div class="fuel-bar" style="width:40px"><div class="fuel-fill" style="width:80%;background:#1D9E75"></div></div><span style="font-size:9px">80%</span></div></td><td>15 Mei</td><td><span class="b bon">Aktif</span></td></tr>
+            <tr><td>Toyota Avanza</td><td>BA 5678 LM</td><td><span class="b bpurp">Bali</span></td><td>7 pax</td><td>Nyoman</td><td><div style="display:flex;align-items:center;gap:4px"><div class="fuel-bar" style="width:40px"><div class="fuel-fill" style="width:40%;background:#BA7517"></div></div><span style="font-size:9px">40%</span></div></td><td>20 Mei</td><td><span class="b bon">Aktif</span></td></tr>
+            <tr><td>Mitsubishi L300</td><td>L 3456 AB</td><td><span class="b bpend">Surabaya</span></td><td>9 pax</td><td>—</td><td>—</td><td>Sedang servis</td><td><span class="b bcancel">Servis</span></td></tr>
+            <tr><td>Suzuki APV</td><td>DR 7890 CD</td><td><span class="b bcancel">Lombok</span></td><td>6 pax</td><td>Wayan</td><td><div style="display:flex;align-items:center;gap:4px"><div class="fuel-bar" style="width:40px"><div class="fuel-fill" style="width:65%;background:#1D9E75"></div></div><span style="font-size:9px">65%</span></div></td><td>2 Jun</td><td><span class="b bon">Aktif</span></td></tr>
+            <tr><td>Toyota Land Cruiser</td><td>EA 1234 LB</td><td><span class="b bblue">Labuan Bajo</span></td><td>7 pax</td><td>Raden</td><td><div style="display:flex;align-items:center;gap:4px"><div class="fuel-bar" style="width:40px"><div class="fuel-fill" style="width:90%;background:#1D9E75"></div></div><span style="font-size:9px">90%</span></div></td><td>10 Jun</td><td><span class="b bon">Aktif</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ATTENDANCE -->
+    <div class="tab-content" id="tab-attendance">
+      <div class="sr sr-3">
+        <div class="sc"><div class="sc-val">78/83</div><div class="sc-lbl">Hadir hari ini</div><div class="sc-d up">94% attendance rate</div></div>
+        <div class="sc"><div class="sc-val">5</div><div class="sc-lbl">Izin / sakit</div></div>
+        <div class="sc"><div class="sc-val">12</div><div class="sc-lbl">Jadwal konflik besok</div><div class="sc-d dn">perlu review</div></div>
+      </div>
+      <div class="card">
+        <div class="ch"><div class="ct">Jadwal tim minggu ini (semua region)</div><div class="ca">Export jadwal</div></div>
+        <table>
+          <thead><tr><th>Nama</th><th>Region</th><th>Sen 28</th><th>Sel 29</th><th>Rab 30</th><th>Kam 1</th><th>Jum 2</th></tr></thead>
+          <tbody>
+            <tr><td>Pak Budi</td><td><span class="b bdone">Jogja</span></td><td><span class="b bon">Trip</span></td><td><span class="b bon">Trip</span></td><td><span class="b bpend">Standby</span></td><td><span class="b bon">Trip</span></td><td><span class="b bblue">Off</span></td></tr>
+            <tr><td>Komang</td><td><span class="b bpurp">Bali</span></td><td><span class="b bon">Trip</span></td><td><span class="b bon">Trip</span></td><td><span class="b bon">Trip</span></td><td><span class="b bblue">Off</span></td><td><span class="b bpend">Standby</span></td></tr>
+            <tr><td>Mas Doni</td><td><span class="b bpend">Surabaya</span></td><td><span class="b bpend">Standby</span></td><td><span class="b bon">Trip</span></td><td><span class="b bon">Trip</span></td><td><span class="b bon">Trip</span></td><td><span class="b bon">Trip</span></td></tr>
+            <tr><td>Wayan</td><td><span class="b bcancel">Lombok</span></td><td><span class="b bblue">Sakit</span></td><td><span class="b bpend">Standby</span></td><td><span class="b bon">Trip</span></td><td><span class="b bon">Trip</span></td><td><span class="b bpend">Standby</span></td></tr>
+            <tr><td>Raden Bagas</td><td><span class="b bblue">Labuan Bajo</span></td><td><span class="b bon">Trip</span></td><td><span class="b bon">Trip</span></td><td><span class="b bpend">Standby</span></td><td><span class="b bpend">Standby</span></td><td><span class="b bon">Trip</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PAYROLL -->
+    <div class="tab-content" id="tab-payroll">
+      <div class="sr sr-3">
+        <div class="sc"><div class="sc-val">Rp 89jt</div><div class="sc-lbl">Total penggajian bulan ini</div></div>
+        <div class="sc"><div class="sc-val">61</div><div class="sc-lbl">Gaji sudah diproses</div><div class="sc-d up">73% dari total tim</div></div>
+        <div class="sc"><div class="sc-val">22</div><div class="sc-lbl">Pending proses</div><div class="sc-d dn">deadline 5 Mei</div></div>
+      </div>
+      <div class="card">
+        <div class="ch"><div class="ct">Penggajian per region — Mei 2026</div><div class="ca">Proses semua</div></div>
+        <table>
+          <thead><tr><th>Region</th><th>Total Tim</th><th>Total Gaji Pokok</th><th>Total Komisi</th><th>Grand Total</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td><span class="b bdone">Jogja</span></td><td>22 orang</td><td>Rp 41jt</td><td>Rp 14jt</td><td>Rp 55jt</td><td><span class="b bdone">Lunas</span></td></tr>
+            <tr><td><span class="b bpurp">Bali</span></td><td>24 orang</td><td>Rp 46jt</td><td>Rp 18jt</td><td>Rp 64jt</td><td><span class="b bon">Proses</span></td></tr>
+            <tr><td><span class="b bpend">Surabaya</span></td><td>16 orang</td><td>Rp 30jt</td><td>Rp 10jt</td><td>Rp 40jt</td><td><span class="b bpend">Pending</span></td></tr>
+            <tr><td><span class="b bcancel">Lombok</span></td><td>12 orang</td><td>Rp 22jt</td><td>Rp 7jt</td><td>Rp 29jt</td><td><span class="b bpend">Pending</span></td></tr>
+            <tr><td><span class="b bblue">Labuan Bajo</span></td><td>9 orang</td><td>Rp 17jt</td><td>Rp 4jt</td><td>Rp 21jt</td><td><span class="b bpend">Pending</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- CRM -->
+    <div class="tab-content" id="tab-crm">
+      <div class="sr sr-4">
+        <div class="sc"><div class="sc-val">1.840</div><div class="sc-lbl">Total kontak klien</div></div>
+        <div class="sc"><div class="sc-val">28</div><div class="sc-lbl">Chat belum dibalas</div><div class="sc-d dn">lintas region</div></div>
+        <div class="sc"><div class="sc-val">64%</div><div class="sc-lbl">Repeat booking rate</div><div class="sc-d up">+5% bulan ini</div></div>
+        <div class="sc"><div class="sc-val">12</div><div class="sc-lbl">Leads baru hari ini</div><div class="sc-d up">dari landing page</div></div>
+      </div>
+      <div class="card">
+        <div class="ch"><div class="ct">Chat masuk — semua region</div><div class="ca">Tandai terbaca</div></div>
+        <div class="feed-item"><div class="hr-av" style="background:#E1F5EE;color:#085041;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;flex-shrink:0">SD</div><div style="flex:1"><div style="font-size:11px;font-weight:500;color:var(--color-text-primary)">Sari Dewi <span class="b bdone">Jogja</span></div><div style="font-size:10px;color:var(--color-text-secondary)">Kak, boleh minta foto selama tripnya?</div></div><div class="feed-time">09:41</div><div style="width:7px;height:7px;border-radius:50%;background:#1D9E75;flex-shrink:0;margin-top:3px"></div></div>
+        <div class="feed-item"><div class="hr-av" style="background:#EEEDFE;color:#26215C;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;flex-shrink:0">YR</div><div style="flex:1"><div style="font-size:11px;font-weight:500;color:var(--color-text-primary)">Yusuf Rahman <span class="b bblue">Labuan Bajo</span></div><div style="font-size:10px;color:var(--color-text-secondary)">Driver saya siapa ya kak untuk besok?</div></div><div class="feed-time">09:12</div><div style="width:7px;height:7px;border-radius:50%;background:#1D9E75;flex-shrink:0;margin-top:3px"></div></div>
+        <div class="feed-item"><div class="hr-av" style="background:#FAEEDA;color:#633806;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;flex-shrink:0">JT</div><div style="flex:1"><div style="font-size:11px;font-weight:500;color:var(--color-text-primary)">James Tanaka <span class="b bpurp">Bali</span></div><div style="font-size:10px;color:var(--color-text-secondary)">The Ubud trip was amazing! Can I rebook for next month?</div></div><div class="feed-time">08:55</div></div>
+        <div class="feed-item"><div class="hr-av" style="background:#EAF3DE;color:#3B6D11;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;flex-shrink:0">SM</div><div style="flex:1"><div style="font-size:11px;font-weight:500;color:var(--color-text-primary)">Sarah Miller <span class="b bcancel">Lombok</span></div><div style="font-size:10px;color:var(--color-text-secondary)">How difficult is the Rinjani trek? We have seniors in group</div></div><div class="feed-time">08:20</div><div style="width:7px;height:7px;border-radius:50%;background:#1D9E75;flex-shrink:0;margin-top:3px"></div></div>
+      </div>
+    </div>
+
+    <!-- PAKET -->
+    <div class="tab-content" id="tab-paket">
+      <div class="sr sr-4">
+        <div class="sc"><div class="sc-val">42</div><div class="sc-lbl">Total paket aktif</div></div>
+        <div class="sc"><div class="sc-val">8</div><div class="sc-lbl">Paket draft</div></div>
+        <div class="sc"><div class="sc-val">Rp 750rb</div><div class="sc-lbl">Harga terendah</div></div>
+        <div class="sc"><div class="sc-val">Rp 12jt</div><div class="sc-lbl">Harga tertinggi</div><div class="sc-d up">Komodo 4D3N</div></div>
+      </div>
+      <div class="card">
+        <div class="ch"><div class="ct">Daftar paket per region</div><div class="ca">+ Tambah paket</div></div>
+        <table>
+          <thead><tr><th>Nama paket</th><th>Region</th><th>Durasi</th><th>Harga/pax</th><th>Booking bulan ini</th><th>Rating</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td><b style="font-weight:500">Komodo Sailing 3D2N</b></td><td><span class="b bblue">Labuan Bajo</span></td><td>3 hari</td><td>Rp 6.500.000</td><td>4</td><td>5.0★</td><td><span class="b bon">Aktif</span></td></tr>
+            <tr><td><b style="font-weight:500">Uluwatu Sunset Tour</b></td><td><span class="b bpurp">Bali</span></td><td>1 hari</td><td>Rp 950.000</td><td>38</td><td>4.9★</td><td><span class="b bon">Aktif</span></td></tr>
+            <tr><td><b style="font-weight:500">Rinjani Day Hike</b></td><td><span class="b bcancel">Lombok</span></td><td>1 hari</td><td>Rp 1.200.000</td><td>14</td><td>4.9★</td><td><span class="b bon">Aktif</span></td></tr>
+            <tr><td><b style="font-weight:500">Bromo Sunrise</b></td><td><span class="b bdone">Jogja</span></td><td>1 hari</td><td>Rp 1.200.000</td><td>42</td><td>4.9★</td><td><span class="b bon">Aktif</span></td></tr>
+            <tr><td><b style="font-weight:500">Kawah Ijen Blue Fire</b></td><td><span class="b bpend">Surabaya</span></td><td>2 hari</td><td>Rp 1.500.000</td><td>28</td><td>5.0★</td><td><span class="b bon">Aktif</span></td></tr>
+            <tr><td><b style="font-weight:500">Gili Islands Hopping</b></td><td><span class="b bcancel">Lombok</span></td><td>1 hari</td><td>Rp 850.000</td><td>0</td><td>—</td><td><span class="b bpend">Draft</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<script>
+const titles={hq:'HQ Overview — Semua Region',dispatch:'Dispatch Center',analytics:'Analytics & Benchmarking',reg:'Regional Hub — Bali',hr:'Tim Lapangan & HR',payroll:'Penggajian',attendance:'Absensi & Jadwal',finance:'Finance & P&L',trips:'Trip Management',fleet:'Fleet & Armada',crm:'CRM & Chat Center',paket:'Paket & Harga'};
+function setTab(id,el){
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));
+  const t=document.getElementById('tab-'+id);
+  if(t)t.classList.add('active');
+  el.classList.add('active');
+  document.getElementById('ptitle').textContent=titles[id]||id;
+}
+</script>

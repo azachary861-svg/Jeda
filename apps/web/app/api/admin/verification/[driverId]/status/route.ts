@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { requireAdmin } from '@/lib/auth/require-admin';
 import { verificationStatusSchema } from '@/lib/validations/verification';
 
 export async function PATCH(
@@ -7,22 +8,13 @@ export async function PATCH(
   context: { params: Promise<{ driverId: string }> }
 ) {
   const { driverId } = await context.params;
+  const auth = await requireAdmin();
+  if (!auth.ok) {
+    return NextResponse.json({ error: auth.error, code: auth.code }, { status: auth.status });
+  }
+
   const supabase = await createClient();
-
-  const { data: userData } = await supabase.auth.getUser();
-  if (!userData.user) {
-    return NextResponse.json({ error: 'Unauthorized', code: 'UNAUTHORIZED' }, { status: 401 });
-  }
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', userData.user.id)
-    .maybeSingle();
-
-  if (!profile || !['super_admin', 'regional_admin'].includes(profile.role)) {
-    return NextResponse.json({ error: 'Forbidden', code: 'FORBIDDEN' }, { status: 403 });
-  }
+  const profile = auth.profile;
 
   const payload = await request.json();
   const parsed = verificationStatusSchema.safeParse(payload);
@@ -40,7 +32,7 @@ export async function PATCH(
       overall_status: parsed.data.overallStatus,
       rejection_reason: parsed.data.rejectionReason ?? null,
       notes: parsed.data.notes ?? null,
-      verified_by: userData.user.id,
+      verified_by: profile.id,
       verified_at: new Date().toISOString(),
     },
     { onConflict: 'driver_id' }

@@ -1,5 +1,17 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
+import {
+  getPortalHomePath,
+  isAdminLoginPath,
+  isAdminProtectedPath,
+  isAdminRole,
+  isClientLoginPath,
+  isClientProtectedPath,
+  isDriverLoginPath,
+  isDriverProtectedPath,
+  isDriverRole,
+  isRegisterPath,
+} from '@/lib/auth/portal';
 
 type CookieToSet = {
   name: string;
@@ -39,11 +51,58 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const isAdminRoute = request.nextUrl.pathname.startsWith('/dashboard');
-  const isClientProtectedRoute = request.nextUrl.pathname.startsWith('/my-bookings');
+  const { pathname } = request.nextUrl;
+  const search = request.nextUrl.search;
+  const nextPath = `${pathname}${search}`;
+  const wantsAdminLogin = isAdminLoginPath(pathname);
+  const wantsDriverLogin = isDriverLoginPath(pathname);
+  const wantsClientAuth = isClientLoginPath(pathname) || isRegisterPath(pathname);
+  const wantsAdminRoute = isAdminProtectedPath(pathname);
+  const wantsClientRoute = isClientProtectedPath(pathname);
+  const wantsDriverRoute = isDriverProtectedPath(pathname);
 
-  if (!user && (isAdminRoute || isClientProtectedRoute)) {
-    return NextResponse.redirect(new URL('/auth/login', request.url));
+  if (!user && wantsAdminRoute) {
+    const loginUrl = new URL('/dashboard/login', request.url);
+    loginUrl.searchParams.set('next', nextPath);
+    return NextResponse.redirect(loginUrl);
+  }
+
+  if (!user && wantsClientRoute) {
+    const loginUrl = new URL('/login', request.url);
+    loginUrl.searchParams.set('next', nextPath);
+    return NextResponse.redirect(loginUrl);
+  }
+
+  if (!user && wantsDriverRoute) {
+    const loginUrl = new URL('/driver/login', request.url);
+    loginUrl.searchParams.set('next', nextPath);
+    return NextResponse.redirect(loginUrl);
+  }
+
+  if (!user) {
+    return supabaseResponse;
+  }
+
+  if (user && (wantsAdminRoute || wantsAdminLogin || wantsClientAuth || wantsDriverRoute || wantsDriverLogin)) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .maybeSingle();
+
+    const homePath = getPortalHomePath(isAdminRole(profile?.role) ? 'admin' : isDriverRole(profile?.role) ? 'driver' : 'client');
+
+    if (wantsAdminLogin || wantsClientAuth || wantsDriverLogin) {
+      return NextResponse.redirect(new URL(homePath, request.url));
+    }
+
+    if (wantsAdminRoute && !isAdminRole(profile?.role)) {
+      return NextResponse.redirect(new URL('/packages', request.url));
+    }
+
+    if (wantsDriverRoute && !isDriverRole(profile?.role)) {
+      return NextResponse.redirect(new URL('/packages', request.url));
+    }
   }
 
   return supabaseResponse;

@@ -1,23 +1,15 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { requireAdmin } from '@/lib/auth/require-admin';
 
 export async function GET() {
+  const auth = await requireAdmin();
+  if (!auth.ok) {
+    return NextResponse.json({ error: auth.error, code: auth.code }, { status: auth.status });
+  }
+
   const supabase = await createClient();
-  const { data: userData } = await supabase.auth.getUser();
-
-  if (!userData.user) {
-    return NextResponse.json({ error: 'Unauthorized', code: 'UNAUTHORIZED' }, { status: 401 });
-  }
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role,region_id')
-    .eq('id', userData.user.id)
-    .maybeSingle();
-
-  if (!profile || !['super_admin', 'regional_admin'].includes(profile.role)) {
-    return NextResponse.json({ error: 'Forbidden', code: 'FORBIDDEN' }, { status: 403 });
-  }
+  const profile = auth.profile;
 
   let query = supabase.from('transactions').select('type,amount,region_id');
 

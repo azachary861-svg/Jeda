@@ -1,28 +1,32 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { requireAdmin } from '@/lib/auth/require-admin';
 import { bookingStatusSchema } from '@/lib/validations/booking-status';
+
+type BookingStatus = 'pending_payment' | 'confirmed' | 'assigned' | 'on_trip' | 'completed' | 'cancelled' | 'refunded';
+
+const allowedTransitions: Record<BookingStatus, BookingStatus[]> = {
+  pending_payment: ['confirmed', 'cancelled'],
+  confirmed: ['assigned', 'cancelled'],
+  assigned: ['on_trip', 'cancelled'],
+  on_trip: ['completed'],
+  completed: ['refunded'],
+  cancelled: [],
+  refunded: [],
+};
 
 export async function PATCH(
   request: Request,
   context: { params: Promise<{ id: string }> }
 ) {
   const { id } = await context.params;
+  const auth = await requireAdmin();
+  if (!auth.ok) {
+    return NextResponse.json({ error: auth.error, code: auth.code }, { status: auth.status });
+  }
+
   const supabase = await createClient();
-
-  const { data: userData } = await supabase.auth.getUser();
-  if (!userData.user) {
-    return NextResponse.json({ error: 'Unauthorized', code: 'UNAUTHORIZED' }, { status: 401 });
-  }
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role,region_id')
-    .eq('id', userData.user.id)
-    .maybeSingle();
-
-  if (!profile || !['super_admin', 'regional_admin'].includes(profile.role)) {
-    return NextResponse.json({ error: 'Forbidden', code: 'FORBIDDEN' }, { status: 403 });
-  }
+  const profile = auth.profile;
 
   const body = await request.json();
   const parsed = bookingStatusSchema.safeParse(body);
@@ -35,7 +39,7 @@ export async function PATCH(
 
   const { data: booking } = await supabase
     .from('bookings')
-    .select('id,region_id')
+    .select('id,region_id,status')
     .eq('id', id)
     .maybeSingle();
 
@@ -45,6 +49,20 @@ export async function PATCH(
 
   if (profile.role === 'regional_admin' && profile.region_id !== booking.region_id) {
     return NextResponse.json({ error: 'Cross-region update denied', code: 'REGION_ACCESS_DENIED' }, { status: 403 });
+  }
+
+  const currentStatus = booking.status as BookingStatus;
+  const nextStatus = parsed.data.status as BookingStatus;
+  const canTransition = currentStatus === nextStatus || allowedTransitions[currentStatus].includes(nextStatus);
+
+  if (!canTransition) {
+    return NextResponse.json(
+      {
+        error: `Transisi status tidak valid: ${currentStatus} -> ${nextStatus}`,
+        code: 'INVALID_STATUS_TRANSITION',
+      },
+      { status: 400 }
+    );
   }
 
   const { error: updateError } = await supabase

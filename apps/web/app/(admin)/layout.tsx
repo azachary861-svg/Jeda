@@ -1,30 +1,60 @@
 import { redirect } from 'next/navigation';
-import Link from 'next/link';
-import { createClient } from '@/lib/supabase/server';
+import { requireAdmin } from '@/lib/auth/require-admin';
+import { AdminShell } from '@/components/admin/admin-shell';
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  const supabase = await createClient();
-  const { data } = await supabase.auth.getUser();
+  const adminResult = await requireAdmin();
 
-  if (!data.user) {
-    redirect('/auth/login');
+  if (!adminResult.ok) {
+    redirect(adminResult.code === 'UNAUTHORIZED' ? '/dashboard/login' : '/packages');
   }
 
+  const profile = adminResult.profile;
+
+  const menuSections: Array<{ title: string; items: Array<{ href: string; label: string; icon?: string; badge?: string; superAdminOnly?: boolean }> }> = [
+    {
+      title: 'Headquarters',
+      items: [
+        { href: '/dashboard', label: 'HQ Overview', icon: '◈' },
+        { href: '/dispatch', label: 'Dispatch Center', icon: '◎', badge: '4' },
+        { href: '/analytics', label: 'Analytics', icon: '▣', superAdminOnly: true },
+      ],
+    },
+    {
+      title: 'Operations',
+      items: [
+        { href: '/bookings', label: 'Bookings', icon: '◍' },
+        { href: '/trips', label: 'Trips', icon: '✈' },
+        { href: '/fleet', label: 'Fleet & Armada', icon: '⊡' },
+        { href: '/team', label: 'Tim Lapangan', icon: '◉' },
+        { href: '/verification', label: 'Verification', icon: '☑' },
+      ],
+    },
+    {
+      title: 'Revenue',
+      items: [
+        { href: '/finance', label: 'Finance', icon: '◦' },
+        { href: '/packages-admin', label: 'Paket & Harga', icon: '❖' },
+        { href: '/pricing', label: 'Pricing Rule', icon: '⊛' },
+        { href: '/crm', label: 'CRM', icon: '◁', badge: '12' },
+      ],
+    },
+  ];
+
+  const visibleSections = menuSections
+    .map((section) => ({
+      ...section,
+      items: section.items.filter((item) => !item.superAdminOnly || profile.role === 'super_admin'),
+    }))
+    .filter((section) => section.items.length > 0);
+
   return (
-    <div className="min-h-screen bg-slate-50">
-      <header className="border-b bg-white">
-        <div className="mx-auto flex max-w-6xl items-center justify-between p-4">
-          <h1 className="font-semibold text-primary">Jeda Wisata Admin</h1>
-          <nav className="flex gap-4 text-sm">
-            <Link href="/dashboard">Dashboard</Link>
-            <Link href="/bookings">Bookings</Link>
-            <Link href="/dispatch">Dispatch</Link>
-            <Link href="/verification">Verification</Link>
-            <Link href="/finance">Finance</Link>
-          </nav>
-        </div>
-      </header>
+    <AdminShell
+      roleLabel={profile.role === 'super_admin' ? 'Mas Shafly · Super Admin' : 'Regional Admin'}
+      regionLabel={profile.region_id ?? 'HQ'}
+      sections={visibleSections}
+    >
       {children}
-    </div>
+    </AdminShell>
   );
 }
