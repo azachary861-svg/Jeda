@@ -22,7 +22,7 @@ export function MarketplaceHeader({ isLoggedIn, isAdmin, isDriver, userInitial }
     <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/95 backdrop-blur">
       <div className="mx-auto flex h-[52px] max-w-7xl items-center gap-4 px-4">
         <Link href="/packages" className="shrink-0 text-base font-bold tracking-tight text-emerald-700">
-          Trip<span className="text-emerald-500">Nesia</span>
+          Jeda<span className="text-emerald-500"> Wisata</span>
         </Link>
 
         <nav className="mx-auto hidden items-center gap-1 text-xs md:flex">

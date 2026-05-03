@@ -1,11 +1,32 @@
-import { createClient } from '@/lib/supabase/server';
+import { createClient, isSupabaseConfigured } from '@/lib/supabase/server';
 import { RealTripMapLive } from '@/components/marketplace/real-trip-map-live';
 import { redirect } from 'next/navigation';
 
 export const dynamic = 'force-dynamic';
 
 export default async function RealTripMapsPage() {
-  const supabase = await createClient();
+  if (!isSupabaseConfigured()) {
+    return (
+      <main className="mx-auto max-w-6xl px-6 py-6">
+        <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+          Layanan belum terkonfigurasi. Hubungi administrator.
+        </div>
+      </main>
+    );
+  }
+
+  let supabase;
+  try {
+    supabase = await createClient();
+  } catch {
+    return (
+      <main className="mx-auto max-w-6xl px-6 py-6">
+        <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+          Gagal terhubung ke server. Silakan coba lagi.
+        </div>
+      </main>
+    );
+  }
 
   const { data: userData } = await supabase.auth.getUser();
   if (!userData.user) {

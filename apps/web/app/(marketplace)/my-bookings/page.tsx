@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { createClient } from '@/lib/supabase/server';
+import { createClient, isSupabaseConfigured } from '@/lib/supabase/server';
 
 export const dynamic = 'force-dynamic';
 
@@ -13,7 +13,29 @@ function statusBadge(status: string) {
 }
 
 export default async function MyBookingsPage() {
-  const supabase = await createClient();
+  if (!isSupabaseConfigured()) {
+    return (
+      <main className="mx-auto max-w-6xl px-6 py-6">
+        <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+          Layanan belum terkonfigurasi. Hubungi administrator.
+        </div>
+      </main>
+    );
+  }
+
+  let supabase;
+  try {
+    supabase = await createClient();
+  } catch {
+    return (
+      <main className="mx-auto max-w-6xl px-6 py-6">
+        <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+          Gagal terhubung ke server. Silakan coba lagi.
+        </div>
+      </main>
+    );
+  }
+
   const { data } = await supabase.auth.getUser();
   if (!data.user) redirect('/login?next=/my-bookings');
 
