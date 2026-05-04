@@ -1,6 +1,14 @@
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 
+function isValidSupabaseProjectUrl(value: string | undefined) {
+  if (!value) {
+    return false;
+  }
+
+  return /^https:\/\/[a-z0-9-]+\.supabase\.co$/i.test(value.trim());
+}
+
 type CookieToSet = {
   name: string;
   value: string;
@@ -19,15 +27,18 @@ export async function createClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-  if (!supabaseUrl || !supabaseAnonKey) {
+  if (!isValidSupabaseProjectUrl(supabaseUrl) || !supabaseAnonKey) {
     throw new Error('Missing Supabase environment variables. Please configure NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.');
   }
+
+  const validatedSupabaseUrl = supabaseUrl as string;
+  const validatedSupabaseAnonKey = supabaseAnonKey as string;
 
   const cookieStore = await cookies();
 
   return createServerClient(
-    supabaseUrl,
-    supabaseAnonKey,
+    validatedSupabaseUrl,
+    validatedSupabaseAnonKey,
     {
       cookies: {
         getAll() {
@@ -46,5 +57,5 @@ export async function createClient() {
 }
 
 export function isSupabaseConfigured() {
-  return Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+  return Boolean(isValidSupabaseProjectUrl(process.env.NEXT_PUBLIC_SUPABASE_URL) && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
 }

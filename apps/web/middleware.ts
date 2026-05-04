@@ -29,11 +29,24 @@ type CookieToSet = {
 
 export async function middleware(request: NextRequest) {
   try {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    const hasValidSupabaseConfig = Boolean(
+      supabaseUrl && /^https:\/\/[a-z0-9-]+\.supabase\.co$/i.test(supabaseUrl) && supabaseAnonKey
+    );
+
+    if (!hasValidSupabaseConfig) {
+      return NextResponse.next();
+    }
+
+    const validatedSupabaseUrl = supabaseUrl as string;
+    const validatedSupabaseAnonKey = supabaseAnonKey as string;
+
     let supabaseResponse = NextResponse.next({ request });
 
     const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
+      validatedSupabaseUrl,
+      validatedSupabaseAnonKey,
       {
         cookies: {
           getAll() {

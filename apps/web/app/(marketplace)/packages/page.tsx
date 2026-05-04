@@ -19,6 +19,18 @@ function readNumberParam(value: string | string[] | undefined) {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
+function toDisplayErrorMessage(error: { message: string } | null) {
+  if (!error?.message) {
+    return null;
+  }
+
+  if (error.message.includes('<!DOCTYPE') || error.message.includes('<html') || error.message.includes('Supabase')) {
+    return 'Koneksi database belum benar. Pastikan NEXT_PUBLIC_SUPABASE_URL di Vercel memakai URL project Supabase, misalnya https://nama-project.supabase.co.';
+  }
+
+  return error.message;
+}
+
 function packageEmoji(destination: string, name: string) {
   const source = `${destination} ${name}`.toLowerCase();
 
@@ -116,6 +128,7 @@ export default async function PackagesPage({ searchParams }: PackagesPageProps) 
   }
 
   const safePackages = packages ?? [];
+  const displayErrorMessage = toDisplayErrorMessage(error);
 
   const destinationOptions = Array.from(new Set((destinations ?? []).map((item) => item.destination)));
 
@@ -190,7 +203,7 @@ export default async function PackagesPage({ searchParams }: PackagesPageProps) 
 
         {error ? (
           <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-            {error.message || 'Gagal memuat paket. Silakan refresh halaman.'}
+            {displayErrorMessage || 'Gagal memuat paket. Silakan refresh halaman.'}
           </div>
         ) : null}
 
