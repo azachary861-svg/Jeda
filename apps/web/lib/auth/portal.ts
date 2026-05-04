@@ -25,7 +25,11 @@ function normalizeRole(role: string | null | undefined) {
     return null;
   }
 
-  return role.trim().toLowerCase().replace(/-/g, '_');
+  return role
+    .trim()
+    .toLowerCase()
+    .replace(/[\s-]+/g, '_')
+    .replace(/^_+|_+$/g, '');
 }
 
 export function isAdminRole(role: string | null | undefined): boolean {

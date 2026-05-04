@@ -11,6 +11,20 @@ export type AdminAuthResult =
   | { ok: true; profile: AdminProfile }
   | { ok: false; status: 401 | 403; error: string; code: 'UNAUTHORIZED' | 'FORBIDDEN' };
 
+function toCanonicalAdminRole(role: string): 'super_admin' | 'regional_admin' {
+  const normalized = role
+    .trim()
+    .toLowerCase()
+    .replace(/[\s-]+/g, '_')
+    .replace(/^_+|_+$/g, '');
+
+  if (normalized.includes('regional')) {
+    return 'regional_admin';
+  }
+
+  return 'super_admin';
+}
+
 export async function requireAdmin(): Promise<AdminAuthResult> {
   const supabase = await createClient();
 
@@ -36,7 +50,7 @@ export async function requireAdmin(): Promise<AdminAuthResult> {
     ok: true,
     profile: {
       id: profile.id,
-      role: profile.role,
+      role: toCanonicalAdminRole(profile.role),
       region_id: profile.region_id,
     },
   };

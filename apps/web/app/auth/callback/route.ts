@@ -5,7 +5,11 @@ import { createClient } from '@/lib/supabase/server';
 function resolveRoleCandidate(...values: Array<unknown>) {
   for (const value of values) {
     if (typeof value !== 'string') continue;
-    const normalized = value.trim().toLowerCase().replace(/-/g, '_');
+    const normalized = value
+      .trim()
+      .toLowerCase()
+      .replace(/[\s-]+/g, '_')
+      .replace(/^_+|_+$/g, '');
     if (normalized) {
       return normalized;
     }
