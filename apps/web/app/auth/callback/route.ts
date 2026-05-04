@@ -2,6 +2,18 @@ import { NextResponse } from 'next/server';
 import { getPortalAccessError, getPortalLoginPath, getPostLoginPath, type AuthPortal } from '@/lib/auth/portal';
 import { createClient } from '@/lib/supabase/server';
 
+function resolveRoleCandidate(...values: Array<unknown>) {
+  for (const value of values) {
+    if (typeof value !== 'string') continue;
+    const normalized = value.trim().toLowerCase().replace(/-/g, '_');
+    if (normalized) {
+      return normalized;
+    }
+  }
+
+  return null;
+}
+
 export async function GET(request: Request) {
   try {
     const { searchParams, origin } = new URL(request.url);
@@ -50,7 +62,8 @@ export async function GET(request: Request) {
           .eq('id', user.id)
           .maybeSingle();
 
-        const portalError = getPortalAccessError(portal, profile?.role);
+        const role = resolveRoleCandidate(profile?.role, user.app_metadata?.role, user.user_metadata?.role);
+        const portalError = getPortalAccessError(portal, role);
 
         if (portalError) {
           await supabase.auth.signOut({ scope: 'local' });

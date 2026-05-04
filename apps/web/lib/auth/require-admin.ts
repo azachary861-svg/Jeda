@@ -1,8 +1,9 @@
 import { createClient } from '@/lib/supabase/server';
+import { isAdminRole } from '@/lib/auth/portal';
 
 export type AdminProfile = {
   id: string;
-  role: 'super_admin' | 'regional_admin';
+  role: string;
   region_id: string | null;
 };
 
@@ -27,7 +28,7 @@ export async function requireAdmin(): Promise<AdminAuthResult> {
     .eq('id', user.id)
     .maybeSingle();
 
-  if (!profile || !['super_admin', 'regional_admin'].includes(profile.role)) {
+  if (!profile || !isAdminRole(profile.role)) {
     return { ok: false, status: 403, error: 'Forbidden', code: 'FORBIDDEN' };
   }
 

@@ -36,7 +36,7 @@ function markerClass(status: string) {
 
 export function RealTripMapLive({ initialLocations, activeBookingIds, bookingCodeMap }: RealTripMapLiveProps) {
   const [locations, setLocations] = useState<DriverLocation[]>(initialLocations);
-  const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
+  const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
 
   const filteredBookingIds = useMemo(() => new Set(activeBookingIds), [activeBookingIds]);
 
@@ -166,7 +166,7 @@ export function RealTripMapLive({ initialLocations, activeBookingIds, bookingCod
         </div>
       ) : (
         <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
-          NEXT_PUBLIC_MAPBOX_TOKEN belum diatur. Menampilkan daftar lokasi sebagai fallback.
+          Peta interaktif belum tersedia saat ini. Anda tetap bisa memantau pergerakan driver lewat daftar lokasi di bawah.
         </div>
       )}
 

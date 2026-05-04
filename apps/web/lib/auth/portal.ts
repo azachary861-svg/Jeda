@@ -20,12 +20,21 @@ export const ADMIN_ROUTE_PREFIXES = [
 export const CLIENT_PROTECTED_ROUTE_PREFIXES = ['/my-bookings', '/checkout'] as const;
 export const DRIVER_PROTECTED_ROUTE_PREFIXES = ['/driver/app'] as const;
 
+function normalizeRole(role: string | null | undefined) {
+  if (!role) {
+    return null;
+  }
+
+  return role.trim().toLowerCase().replace(/-/g, '_');
+}
+
 export function isAdminRole(role: string | null | undefined): boolean {
-  return role === 'super_admin' || role === 'regional_admin';
+  const normalized = normalizeRole(role);
+  return normalized === 'super_admin' || normalized === 'regional_admin' || normalized === 'superadmin' || normalized === 'regionaladmin' || normalized === 'admin';
 }
 
 export function isDriverRole(role: string | null | undefined): boolean {
-  return role === 'driver';
+  return normalizeRole(role) === 'driver';
 }
 
 function matchesPrefix(pathname: string, prefix: string): boolean {

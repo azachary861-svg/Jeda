@@ -1,5 +1,6 @@
 import Link from 'next/link';
-import { createClient, isSupabaseConfigured } from '@/lib/supabase/server';
+import { createClient } from '@supabase/supabase-js';
+import { isSupabaseConfigured } from '@/lib/supabase/server';
 
 export const dynamic = 'force-dynamic';
 
@@ -77,7 +78,17 @@ export default async function PackagesPage({ searchParams }: PackagesPageProps) 
 
   if (isSupabaseConfigured()) {
     try {
-      const supabase = await createClient();
+      const supabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL as string,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string,
+        {
+          auth: {
+            persistSession: false,
+            autoRefreshToken: false,
+            detectSessionInUrl: false,
+          },
+        }
+      );
 
       const { data: destinationData } = await supabase
         .from('packages')
@@ -91,10 +102,6 @@ export default async function PackagesPage({ searchParams }: PackagesPageProps) 
         .from('packages')
         .select('id,name,slug,short_description,base_price,duration_days,destination')
         .eq('is_active', true);
-
-      if (q) {
-        packageQuery = packageQuery.or(`name.ilike.%${q}%,destination.ilike.%${q}%`);
-      }
 
       if (destination) {
         packageQuery = packageQuery.eq('destination', destination);
@@ -118,7 +125,14 @@ export default async function PackagesPage({ searchParams }: PackagesPageProps) 
 
       const { data: packageData, error: packageError } = await packageQuery;
 
-      packages = packageData ?? [];
+      const loadedPackages = packageData ?? [];
+      const loweredQuery = q.toLowerCase();
+      packages = loweredQuery
+        ? loadedPackages.filter((item) => {
+            const haystack = `${item.name} ${item.destination}`.toLowerCase();
+            return haystack.includes(loweredQuery);
+          })
+        : loadedPackages;
       error = packageError ? { message: packageError.message } : null;
     } catch (caughtError) {
       error = { message: caughtError instanceof Error ? caughtError.message : 'Gagal memuat paket.' };

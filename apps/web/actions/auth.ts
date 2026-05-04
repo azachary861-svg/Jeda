@@ -4,6 +4,18 @@ import { getPortalAccessError, getPortalLoginPath, getPostLoginPath, type AuthPo
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 
+function resolveRoleCandidate(...values: Array<unknown>) {
+  for (const value of values) {
+    if (typeof value !== 'string') continue;
+    const normalized = value.trim().toLowerCase().replace(/-/g, '_');
+    if (normalized) {
+      return normalized;
+    }
+  }
+
+  return null;
+}
+
 async function getProfileRole(userId: string) {
   const supabase = await createClient();
 
@@ -32,7 +44,8 @@ export async function signInWithEmail(email: string, password: string, portal: A
     return { error: 'Gagal membaca data akun.' };
   }
 
-  const role = await getProfileRole(data.user.id);
+  const profileRole = await getProfileRole(data.user.id);
+  const role = resolveRoleCandidate(profileRole, data.user.app_metadata?.role, data.user.user_metadata?.role);
   const portalError = getPortalAccessError(portal, role);
 
   if (portalError) {

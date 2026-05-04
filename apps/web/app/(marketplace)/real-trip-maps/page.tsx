@@ -1,5 +1,6 @@
-import { createClient, isSupabaseConfigured } from '@/lib/supabase/server';
+import { isSupabaseConfigured } from '@/lib/supabase/server';
 import { RealTripMapLive } from '@/components/marketplace/real-trip-map-live';
+import { createClient as createPublicClient } from '@supabase/supabase-js';
 
 export const dynamic = 'force-dynamic';
 
@@ -16,7 +17,17 @@ export default async function RealTripMapsPage() {
 
   let supabase;
   try {
-    supabase = await createClient();
+    supabase = createPublicClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL as string,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string,
+      {
+        auth: {
+          persistSession: false,
+          autoRefreshToken: false,
+          detectSessionInUrl: false,
+        },
+      }
+    );
   } catch {
     return (
       <main className="mx-auto max-w-6xl px-6 py-6">
@@ -27,31 +38,21 @@ export default async function RealTripMapsPage() {
     );
   }
 
-  const { data: activeBookings, error: bookingError } = await supabase
-    .from('bookings')
-    .select('id, booking_code, status, trip_status, trip_date')
-    .in('status', ['confirmed', 'assigned', 'on_trip'])
-    .order('trip_date', { ascending: true })
-    .limit(10);
+  const { data: initialLocations, error: locationError } = await supabase
+    .from('driver_locations')
+    .select('id,driver_id,booking_id,latitude,longitude,status,last_seen')
+    .eq('is_sharing', true)
+    .not('booking_id', 'is', null)
+    .order('last_seen', { ascending: false })
+    .limit(100);
 
-  const activeBookingIds = (activeBookings ?? []).map((item) => item.id);
+  const activeBookingIds = Array.from(
+    new Set((initialLocations ?? []).map((item) => item.booking_id).filter((bookingId): bookingId is string => Boolean(bookingId)))
+  );
 
-  const { data: initialLocations, error: locationError } = activeBookingIds.length
-    ? await supabase
-        .from('driver_locations')
-        .select('id,driver_id,booking_id,latitude,longitude,status,last_seen')
-        .in('booking_id', activeBookingIds)
-        .eq('is_sharing', true)
-        .order('last_seen', { ascending: false })
-        .limit(100)
-    : { data: [], error: null };
+  const bookingCodeMap = {} as Record<string, string>;
 
-  const bookingCodeMap = Object.fromEntries((activeBookings ?? []).map((item) => [item.id, item.booking_code])) as Record<
-    string,
-    string
-  >;
-
-  const hasError = Boolean(bookingError || locationError);
+  const hasError = Boolean(locationError);
 
   return (
     <main className="mx-auto max-w-6xl px-6 py-6">
