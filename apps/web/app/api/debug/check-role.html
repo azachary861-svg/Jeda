@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Debug Role Check</title>
+  <style>
+    body { font-family: monospace; padding: 20px; }
+    input { padding: 8px; width: 300px; }
+    button { padding: 8px 16px; cursor: pointer; }
+    pre { background: #f0f0f0; padding: 10px; border-radius: 4px; overflow-x: auto; }
+    .result { margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <h1>Debug Role Check</h1>
+  <input type="email" id="email" placeholder="test@example.com" value="test@example.com">
+  <button onclick="checkRole()">Check Role</button>
+  
+  <div class="result">
+    <h2>Result:</h2>
+    <pre id="result">Waiting for input...</pre>
+  </div>
+
+  <script>
+    async function checkRole() {
+      const email = document.getElementById('email').value;
+      const resultEl = document.getElementById('result');
+      
+      if (!email) {
+        resultEl.textContent = 'Please enter an email';
+        return;
+      }
+
+      resultEl.textContent = 'Loading...';
+
+      try {
+        const response = await fetch('/api/debug/check-role', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
+        });
+
+        const data = await response.json();
+        resultEl.textContent = JSON.stringify(data, null, 2);
+      } catch (error) {
+        resultEl.textContent = `Error: ${error.message}`;
+      }
+    }
+
+    // Check on page load
+    checkRole();
+  </script>
+</body>
+</html>

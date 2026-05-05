@@ -60,6 +60,22 @@ export async function GET(request: Request) {
           return NextResponse.redirect(loginUrl);
         }
 
+        // Ensure profile exists
+        const { data: existingProfile } = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('id', user.id)
+          .maybeSingle();
+
+        if (!existingProfile) {
+          await supabase.from('profiles').insert({
+            id: user.id,
+            email: user.email || 'unknown@example.com',
+            full_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
+            role: 'client',
+          });
+        }
+
         const { data: profile } = await supabase
           .from('profiles')
           .select('role')

@@ -32,6 +32,27 @@ async function getProfileRole(userId: string) {
   return profile?.role ?? null;
 }
 
+async function ensureProfileExists(userId: string, email: string) {
+  const supabase = await createClient();
+
+  // Check if profile exists
+  const { data: existingProfile } = await supabase
+    .from('profiles')
+    .select('id')
+    .eq('id', userId)
+    .maybeSingle();
+
+  if (!existingProfile) {
+    // Create profile with default client role if it doesn't exist
+    await supabase.from('profiles').insert({
+      id: userId,
+      email,
+      full_name: email.split('@')[0],
+      role: 'client',
+    });
+  }
+}
+
 export async function signInWithEmail(email: string, password: string, portal: AuthPortal, nextPath?: string | null) {
   const supabase = await createClient();
 
@@ -47,6 +68,9 @@ export async function signInWithEmail(email: string, password: string, portal: A
   if (!data.user) {
     return { error: 'Gagal membaca data akun.' };
   }
+
+  // Ensure profile exists
+  await ensureProfileExists(data.user.id, email);
 
   const profileRole = await getProfileRole(data.user.id);
   const role = resolveRoleCandidate(profileRole, data.user.app_metadata?.role, data.user.user_metadata?.role);
