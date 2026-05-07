@@ -23,7 +23,7 @@ export const ADMIN_ROUTE_PREFIXES = [
 export const CLIENT_PROTECTED_ROUTE_PREFIXES = ['/my-bookings', '/checkout'] as const;
 export const DRIVER_PROTECTED_ROUTE_PREFIXES = ['/driver/app'] as const;
 
-function normalizeRole(role: string | null | undefined) {
+export function normalizeRole(role: string | null | undefined) {
   if (!role) {
     return null;
   }
@@ -35,9 +35,27 @@ function normalizeRole(role: string | null | undefined) {
     .replace(/^_+|_+$/g, '');
 }
 
-export function isAdminRole(role: string | null | undefined): boolean {
+export function canonicalizeRole(role: string | null | undefined): string | null {
   const normalized = normalizeRole(role);
-  return normalized === 'super_admin' || normalized === 'regional_admin' || normalized === 'superadmin' || normalized === 'regionaladmin' || normalized === 'admin';
+
+  if (!normalized) {
+    return null;
+  }
+
+  if (normalized === 'superadmin') {
+    return 'super_admin';
+  }
+
+  if (normalized === 'regionaladmin' || normalized === 'region_admin' || normalized === 'regionadmin' || normalized === 'admin_region') {
+    return 'regional_admin';
+  }
+
+  return normalized;
+}
+
+export function isAdminRole(role: string | null | undefined): boolean {
+  const normalized = canonicalizeRole(role);
+  return normalized === 'super_admin' || normalized === 'regional_admin' || normalized === 'admin';
 }
 
 export function isDriverRole(role: string | null | undefined): boolean {

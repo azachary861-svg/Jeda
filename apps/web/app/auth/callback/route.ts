@@ -1,21 +1,67 @@
 import { NextResponse } from 'next/server';
 import { getPortalAccessError, getPortalLoginPath, getPostLoginPath, type AuthPortal } from '@/lib/auth/portal';
+import { canonicalizeRole, isAdminRole, isDriverRole } from '@/lib/auth/portal';
 import { createClient } from '@/lib/supabase/server';
 
 function resolveRoleCandidate(...values: Array<unknown>) {
-  for (const value of values) {
-    if (typeof value !== 'string') continue;
-    const normalized = value
-      .trim()
-      .toLowerCase()
-      .replace(/[\s-]+/g, '_')
-      .replace(/^_+|_+$/g, '');
-    if (normalized) {
+  const ignoredRoles = new Set(['authenticated', 'anon', 'service_role', 'supabase_admin']);
+
+  const pickRole = (value: unknown): string | null => {
+    if (typeof value === 'string') {
+      const normalized = canonicalizeRole(value);
+      if (!normalized || ignoredRoles.has(normalized)) {
+        return null;
+      }
       return normalized;
+    }
+
+    if (Array.isArray(value)) {
+      for (const item of value) {
+        const found = pickRole(item);
+        if (found) {
+          return found;
+        }
+      }
+      return null;
+    }
+
+    if (value && typeof value === 'object') {
+      const candidateRecord = value as Record<string, unknown>;
+      const nestedRole = pickRole(candidateRecord.role ?? candidateRecord.user_role ?? candidateRecord.userRole);
+      if (nestedRole) {
+        return nestedRole;
+      }
+    }
+
+    return null;
+  };
+
+  for (const value of values) {
+    const role = pickRole(value);
+    if (role) {
+      return role;
     }
   }
 
   return null;
+}
+
+function toProfileRole(role: string | null): 'super_admin' | 'regional_admin' | 'driver' | 'client' {
+  const canonical = canonicalizeRole(role);
+
+  if (!canonical) {
+    return 'client';
+  }
+
+  if (isDriverRole(canonical)) {
+    return 'driver';
+  }
+
+  if (isAdminRole(canonical)) {
+    return canonical === 'regional_admin' ? 'regional_admin' : 'super_admin';
+  }
+
+  return 'client';
 }
 
 export async function GET(request: Request) {
@@ -60,6 +106,8 @@ export async function GET(request: Request) {
           return NextResponse.redirect(loginUrl);
         }
 
+        const metadataRole = resolveRoleCandidate(user.user_metadata?.role, user.app_metadata?.role);
+
         // Ensure profile exists
         const { data: existingProfile } = await supabase
           .from('profiles')
@@ -72,7 +120,7 @@ export async function GET(request: Request) {
             id: user.id,
             email: user.email || 'unknown@example.com',
             full_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
-            role: 'client',
+            role: toProfileRole(metadataRole),
           });
         }
 
@@ -82,7 +130,7 @@ export async function GET(request: Request) {
           .eq('id', user.id)
           .maybeSingle();
 
-        const role = resolveRoleCandidate(profile?.role, user.app_metadata?.role, user.user_metadata?.role);
+        const role = resolveRoleCandidate(profile?.role, metadataRole);
         const portalError = getPortalAccessError(portal, role);
 
         if (portalError) {

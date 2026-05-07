@@ -1,19 +1,47 @@
 'use server';
 
 import { getPortalAccessError, getPortalLoginPath, getPostLoginPath, type AuthPortal } from '@/lib/auth/portal';
+import { canonicalizeRole, isAdminRole, isDriverRole } from '@/lib/auth/portal';
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 
 function resolveRoleCandidate(...values: Array<unknown>) {
-  for (const value of values) {
-    if (typeof value !== 'string') continue;
-    const normalized = value
-      .trim()
-      .toLowerCase()
-      .replace(/[\s-]+/g, '_')
-      .replace(/^_+|_+$/g, '');
-    if (normalized) {
+  const ignoredRoles = new Set(['authenticated', 'anon', 'service_role', 'supabase_admin']);
+
+  const pickRole = (value: unknown): string | null => {
+    if (typeof value === 'string') {
+      const normalized = canonicalizeRole(value);
+      if (!normalized || ignoredRoles.has(normalized)) {
+        return null;
+      }
       return normalized;
+    }
+
+    if (Array.isArray(value)) {
+      for (const item of value) {
+        const found = pickRole(item);
+        if (found) {
+          return found;
+        }
+      }
+      return null;
+    }
+
+    if (value && typeof value === 'object') {
+      const candidateRecord = value as Record<string, unknown>;
+      const nestedRole = pickRole(candidateRecord.role ?? candidateRecord.user_role ?? candidateRecord.userRole);
+      if (nestedRole) {
+        return nestedRole;
+      }
+    }
+
+    return null;
+  };
+
+  for (const value of values) {
+    const role = pickRole(value);
+    if (role) {
+      return role;
     }
   }
 
@@ -32,7 +60,25 @@ async function getProfileRole(userId: string) {
   return profile?.role ?? null;
 }
 
-async function ensureProfileExists(userId: string, email: string) {
+function toProfileRole(role: string | null): 'super_admin' | 'regional_admin' | 'driver' | 'client' {
+  const canonical = canonicalizeRole(role);
+
+  if (!canonical) {
+    return 'client';
+  }
+
+  if (isDriverRole(canonical)) {
+    return 'driver';
+  }
+
+  if (isAdminRole(canonical)) {
+    return canonical === 'regional_admin' ? 'regional_admin' : 'super_admin';
+  }
+
+  return 'client';
+}
+
+async function ensureProfileExists(userId: string, email: string, fallbackRole: string | null) {
   const supabase = await createClient();
 
   // Check if profile exists
@@ -48,7 +94,7 @@ async function ensureProfileExists(userId: string, email: string) {
       id: userId,
       email,
       full_name: email.split('@')[0],
-      role: 'client',
+      role: toProfileRole(fallbackRole),
     });
   }
 }
@@ -69,11 +115,13 @@ export async function signInWithEmail(email: string, password: string, portal: A
     return { error: 'Gagal membaca data akun.' };
   }
 
+  const metadataRole = resolveRoleCandidate(data.user.user_metadata?.role, data.user.app_metadata?.role);
+
   // Ensure profile exists
-  await ensureProfileExists(data.user.id, email);
+  await ensureProfileExists(data.user.id, email, metadataRole);
 
   const profileRole = await getProfileRole(data.user.id);
-  const role = resolveRoleCandidate(profileRole, data.user.app_metadata?.role, data.user.user_metadata?.role);
+  const role = resolveRoleCandidate(profileRole, metadataRole);
   const portalError = getPortalAccessError(portal, role);
 
   if (portalError) {
