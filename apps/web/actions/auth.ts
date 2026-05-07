@@ -1,14 +1,27 @@
 'use server';
 
-import { getPortalAccessError, getPortalLoginPath, getPostLoginPath, type AuthPortal } from '@/lib/auth/portal';
-import { canonicalizeRole, isAdminRole, isDriverRole } from '@/lib/auth/portal';
+import {
+  canonicalizeRole,
+  getPortalAccessError,
+  getPortalLoginPath,
+  getPostLoginPath,
+  isAdminRole,
+  isDriverRole,
+  type AuthPortal,
+} from '@/lib/auth/portal';
+import { createAdminClient } from '@/lib/supabase/admin';
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 
 function resolveRoleCandidate(...values: Array<unknown>) {
   const ignoredRoles = new Set(['authenticated', 'anon', 'service_role', 'supabase_admin']);
+  const visited = new WeakSet<object>();
 
-  const pickRole = (value: unknown): string | null => {
+  const pickRole = (value: unknown, depth = 0): string | null => {
+    if (depth > 5) {
+      return null;
+    }
+
     if (typeof value === 'string') {
       const normalized = canonicalizeRole(value);
       if (!normalized || ignoredRoles.has(normalized)) {
@@ -19,7 +32,7 @@ function resolveRoleCandidate(...values: Array<unknown>) {
 
     if (Array.isArray(value)) {
       for (const item of value) {
-        const found = pickRole(item);
+        const found = pickRole(item, depth + 1);
         if (found) {
           return found;
         }
@@ -28,10 +41,22 @@ function resolveRoleCandidate(...values: Array<unknown>) {
     }
 
     if (value && typeof value === 'object') {
+      if (visited.has(value as object)) {
+        return null;
+      }
+      visited.add(value as object);
+
       const candidateRecord = value as Record<string, unknown>;
-      const nestedRole = pickRole(candidateRecord.role ?? candidateRecord.user_role ?? candidateRecord.userRole);
+      const nestedRole = pickRole(candidateRecord.role ?? candidateRecord.user_role ?? candidateRecord.userRole, depth + 1);
       if (nestedRole) {
         return nestedRole;
+      }
+
+      for (const nestedValue of Object.values(candidateRecord)) {
+        const found = pickRole(nestedValue, depth + 1);
+        if (found) {
+          return found;
+        }
       }
     }
 
@@ -89,13 +114,24 @@ async function ensureProfileExists(userId: string, email: string, fallbackRole: 
     .maybeSingle();
 
   if (!existingProfile) {
-    // Create profile with default client role if it doesn't exist
-    await supabase.from('profiles').insert({
+    const payload = {
       id: userId,
       email,
       full_name: email.split('@')[0],
       role: toProfileRole(fallbackRole),
-    });
+    };
+
+    // Create profile with inferred role if it doesn't exist
+    const { error: insertError } = await supabase.from('profiles').insert(payload);
+
+    if (insertError) {
+      try {
+        const adminSupabase = createAdminClient();
+        await adminSupabase.from('profiles').upsert(payload, { onConflict: 'id' });
+      } catch {
+        // no-op: portal checks below will still deny access if profile remains missing
+      }
+    }
   }
 }
 
@@ -115,7 +151,13 @@ export async function signInWithEmail(email: string, password: string, portal: A
     return { error: 'Gagal membaca data akun.' };
   }
 
-  const metadataRole = resolveRoleCandidate(data.user.user_metadata?.role, data.user.app_metadata?.role);
+  const metadataRole = resolveRoleCandidate(
+    data.user.user_metadata,
+    data.user.app_metadata,
+    data.user.user_metadata?.role,
+    data.user.app_metadata?.role,
+    data.user.app_metadata?.user_role
+  );
 
   // Ensure profile exists
   await ensureProfileExists(data.user.id, email, metadataRole);

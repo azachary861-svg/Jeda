@@ -46,7 +46,14 @@ export function canonicalizeRole(role: string | null | undefined): string | null
     return 'super_admin';
   }
 
-  if (normalized === 'regionaladmin' || normalized === 'region_admin' || normalized === 'regionadmin' || normalized === 'admin_region') {
+  if (
+    normalized === 'regionaladmin' ||
+    normalized === 'region_admin' ||
+    normalized === 'regionadmin' ||
+    normalized === 'admin_region' ||
+    normalized === 'adminregion' ||
+    normalized === 'admin_regional'
+  ) {
     return 'regional_admin';
   }
 

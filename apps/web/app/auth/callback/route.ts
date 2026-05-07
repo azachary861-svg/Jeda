@@ -1,12 +1,25 @@
 import { NextResponse } from 'next/server';
-import { getPortalAccessError, getPortalLoginPath, getPostLoginPath, type AuthPortal } from '@/lib/auth/portal';
-import { canonicalizeRole, isAdminRole, isDriverRole } from '@/lib/auth/portal';
+import {
+  canonicalizeRole,
+  getPortalAccessError,
+  getPortalLoginPath,
+  getPostLoginPath,
+  isAdminRole,
+  isDriverRole,
+  type AuthPortal,
+} from '@/lib/auth/portal';
+import { createAdminClient } from '@/lib/supabase/admin';
 import { createClient } from '@/lib/supabase/server';
 
 function resolveRoleCandidate(...values: Array<unknown>) {
   const ignoredRoles = new Set(['authenticated', 'anon', 'service_role', 'supabase_admin']);
+  const visited = new WeakSet<object>();
 
-  const pickRole = (value: unknown): string | null => {
+  const pickRole = (value: unknown, depth = 0): string | null => {
+    if (depth > 5) {
+      return null;
+    }
+
     if (typeof value === 'string') {
       const normalized = canonicalizeRole(value);
       if (!normalized || ignoredRoles.has(normalized)) {
@@ -17,7 +30,7 @@ function resolveRoleCandidate(...values: Array<unknown>) {
 
     if (Array.isArray(value)) {
       for (const item of value) {
-        const found = pickRole(item);
+        const found = pickRole(item, depth + 1);
         if (found) {
           return found;
         }
@@ -26,10 +39,22 @@ function resolveRoleCandidate(...values: Array<unknown>) {
     }
 
     if (value && typeof value === 'object') {
+      if (visited.has(value as object)) {
+        return null;
+      }
+      visited.add(value as object);
+
       const candidateRecord = value as Record<string, unknown>;
-      const nestedRole = pickRole(candidateRecord.role ?? candidateRecord.user_role ?? candidateRecord.userRole);
+      const nestedRole = pickRole(candidateRecord.role ?? candidateRecord.user_role ?? candidateRecord.userRole, depth + 1);
       if (nestedRole) {
         return nestedRole;
+      }
+
+      for (const nestedValue of Object.values(candidateRecord)) {
+        const found = pickRole(nestedValue, depth + 1);
+        if (found) {
+          return found;
+        }
       }
     }
 
@@ -106,7 +131,13 @@ export async function GET(request: Request) {
           return NextResponse.redirect(loginUrl);
         }
 
-        const metadataRole = resolveRoleCandidate(user.user_metadata?.role, user.app_metadata?.role);
+        const metadataRole = resolveRoleCandidate(
+          user.user_metadata,
+          user.app_metadata,
+          user.user_metadata?.role,
+          user.app_metadata?.role,
+          user.app_metadata?.user_role
+        );
 
         // Ensure profile exists
         const { data: existingProfile } = await supabase
@@ -116,12 +147,22 @@ export async function GET(request: Request) {
           .maybeSingle();
 
         if (!existingProfile) {
-          await supabase.from('profiles').insert({
+          const payload = {
             id: user.id,
             email: user.email || 'unknown@example.com',
             full_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
             role: toProfileRole(metadataRole),
-          });
+          };
+
+          const { error: insertError } = await supabase.from('profiles').insert(payload);
+          if (insertError) {
+            try {
+              const adminSupabase = createAdminClient();
+              await adminSupabase.from('profiles').upsert(payload, { onConflict: 'id' });
+            } catch {
+              // no-op
+            }
+          }
         }
 
         const { data: profile } = await supabase
