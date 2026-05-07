@@ -41,6 +41,14 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         { href: '/crm', label: 'CRM', icon: '◁', badge: '12' },
       ],
     },
+    {
+      title: 'Growth & AI',
+      items: [
+        { href: '/marketing', label: 'Marketing', icon: '◌' },
+        { href: '/ai-agent', label: 'AI Agent', icon: '◍' },
+        { href: '/settings', label: 'Settings', icon: '⚙' },
+      ],
+    },
   ];
 
   const visibleSections = menuSections

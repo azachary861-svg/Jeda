@@ -1,0 +1,85 @@
+{
+  "expo": {
+    "name": "driver",
+    "slug": "driver",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "driver",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/images/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Aplikasi membutuhkan GPS untuk pelacakan trip real-time.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Aplikasi membutuhkan GPS background untuk tracking perjalanan aktif.",
+        "NSCameraUsageDescription": "Aplikasi membutuhkan kamera untuk unggah dokumentasi trip.",
+        "NSPhotoLibraryUsageDescription": "Aplikasi membutuhkan akses galeri untuk memilih media trip.",
+        "UIBackgroundModes": [
+          "location",
+          "remote-notification"
+        ]
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "edgeToEdgeEnabled": true,
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_BACKGROUND_LOCATION",
+        "CAMERA",
+        "READ_MEDIA_IMAGES",
+        "READ_MEDIA_VIDEO",
+        "POST_NOTIFICATIONS"
+      ]
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/images/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-location",
+        {
+          "isAndroidBackgroundLocationEnabled": true,
+          "isIosBackgroundLocationEnabled": true,
+          "locationAlwaysAndWhenInUsePermission": "Izinkan lokasi agar perjalanan bisa dipantau real-time.",
+          "locationWhenInUsePermission": "Izinkan lokasi saat memakai aplikasi."
+        }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Izinkan kamera untuk dokumentasi trip."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Izinkan akses foto untuk unggah dokumentasi trip."
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/adaptive-icon.png"
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

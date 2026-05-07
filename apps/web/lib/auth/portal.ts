@@ -15,6 +15,9 @@ export const ADMIN_ROUTE_PREFIXES = [
   '/pricing',
   '/crm',
   '/analytics',
+  '/marketing',
+  '/ai-agent',
+  '/settings',
 ] as const;
 
 export const CLIENT_PROTECTED_ROUTE_PREFIXES = ['/my-bookings', '/checkout'] as const;

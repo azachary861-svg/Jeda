@@ -1,0 +1,16 @@
+JEDA WISATA - SPEC GAP NOTES
+Generated: 2026-05-07
+
+Purpose:
+- Menjadi sumber catatan compliance terhadap TECHNICAL_SPEC setelah file markdown cleanup.
+- Dokumen ini sengaja memakai format .txt agar tetap ringkas dan tidak menambah file .md baru.
+
+Catatan ringkas status saat ini:
+1) Admin routes yang sebelumnya kosong (marketing, ai-agent, settings) sudah dibuat.
+2) Marketplace routes destinations/[slug] dan profile sudah dibuat.
+3) Checkout flow sudah diubah agar menunggu konfirmasi webhook untuk gateway online.
+4) Driver app mulai ditingkatkan untuk background GPS, media capture/upload, dan notifications.
+
+Catatan penting:
+- Technical spec utama tetap bisa diakses dari git history:
+  git show HEAD:JEDA_WISATA_TECHNICAL_SPEC.md

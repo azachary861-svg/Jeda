@@ -15,7 +15,7 @@ export async function GET(
 
   const { data, error } = await supabase
     .from('bookings')
-    .select('id,booking_code,trip_date,pickup_location,pickup_time,status,trip_status,grand_total')
+    .select('id,booking_code,trip_date,pickup_location,pickup_time,status,trip_status,grand_total,payment_status,payment_method')
     .eq('id', id)
     .eq('client_id', userData.user.id)
     .maybeSingle();
