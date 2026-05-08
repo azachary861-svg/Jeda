@@ -13,6 +13,8 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 
+type ServerSupabaseClient = Awaited<ReturnType<typeof createClient>>;
+
 function resolveRoleCandidate(...values: Array<unknown>) {
   const ignoredRoles = new Set(['authenticated', 'anon', 'service_role', 'supabase_admin']);
   const visited = new WeakSet<object>();
@@ -97,9 +99,7 @@ function resolveEffectiveRole(
   return appCanonical ?? userCanonical;
 }
 
-async function getProfileRole(userId: string) {
-  const supabase = await createClient();
-
+async function getProfileRole(supabase: ServerSupabaseClient, userId: string) {
   const { data: profile } = await supabase
     .from('profiles')
     .select('role')
@@ -127,9 +127,7 @@ function toProfileRole(role: string | null): 'super_admin' | 'regional_admin' | 
   return 'client';
 }
 
-async function ensureProfileExists(userId: string, email: string, fallbackRole: string | null) {
-  const supabase = await createClient();
-
+async function ensureProfileExists(supabase: ServerSupabaseClient, userId: string, email: string, fallbackRole: string | null) {
   // Check if profile exists
   const { data: existingProfile } = await supabase
     .from('profiles')
@@ -159,13 +157,12 @@ async function ensureProfileExists(userId: string, email: string, fallbackRole: 
   }
 }
 
-async function syncPrivilegedProfileRole(userId: string, appMetadataRole: string | null) {
+async function syncPrivilegedProfileRole(supabase: ServerSupabaseClient, userId: string, appMetadataRole: string | null) {
   const appCanonical = canonicalizeRole(appMetadataRole);
   if (!appCanonical || (!isAdminRole(appCanonical) && !isDriverRole(appCanonical))) {
     return;
   }
 
-  const supabase = await createClient();
   const { data: profile } = await supabase
     .from('profiles')
     .select('role')
@@ -212,10 +209,10 @@ export async function signInWithEmail(email: string, password: string, portal: A
   const userMetadataRole = resolveRoleCandidate(data.user.user_metadata, data.user.user_metadata?.role);
 
   // Ensure profile exists
-  await ensureProfileExists(data.user.id, email, appMetadataRole ?? userMetadataRole);
-  await syncPrivilegedProfileRole(data.user.id, appMetadataRole);
+  await ensureProfileExists(supabase, data.user.id, data.user.email ?? email, appMetadataRole ?? userMetadataRole);
+  await syncPrivilegedProfileRole(supabase, data.user.id, appMetadataRole);
 
-  const profileRole = await getProfileRole(data.user.id);
+  const profileRole = await getProfileRole(supabase, data.user.id);
   const role = resolveEffectiveRole(profileRole, appMetadataRole, userMetadataRole);
   const portalError = getPortalAccessError(portal, role);
 
