@@ -73,6 +73,30 @@ function resolveRoleCandidate(...values: Array<unknown>) {
   return null;
 }
 
+function resolveEffectiveRole(
+  profileRole: string | null,
+  appMetadataRole: string | null,
+  userMetadataRole: string | null
+) {
+  const profileCanonical = canonicalizeRole(profileRole);
+  const appCanonical = canonicalizeRole(appMetadataRole);
+  const userCanonical = canonicalizeRole(userMetadataRole);
+
+  if (profileCanonical && (isAdminRole(profileCanonical) || isDriverRole(profileCanonical))) {
+    return profileCanonical;
+  }
+
+  if (appCanonical && (isAdminRole(appCanonical) || isDriverRole(appCanonical))) {
+    return appCanonical;
+  }
+
+  if (profileCanonical) {
+    return profileCanonical;
+  }
+
+  return appCanonical ?? userCanonical;
+}
+
 async function getProfileRole(userId: string) {
   const supabase = await createClient();
 
@@ -135,6 +159,35 @@ async function ensureProfileExists(userId: string, email: string, fallbackRole: 
   }
 }
 
+async function syncPrivilegedProfileRole(userId: string, appMetadataRole: string | null) {
+  const appCanonical = canonicalizeRole(appMetadataRole);
+  if (!appCanonical || (!isAdminRole(appCanonical) && !isDriverRole(appCanonical))) {
+    return;
+  }
+
+  const supabase = await createClient();
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', userId)
+    .maybeSingle();
+
+  const profileCanonical = canonicalizeRole(profile?.role ?? null);
+  if (profileCanonical && (isAdminRole(profileCanonical) || isDriverRole(profileCanonical))) {
+    return;
+  }
+
+  try {
+    const adminSupabase = createAdminClient();
+    await adminSupabase
+      .from('profiles')
+      .update({ role: toProfileRole(appCanonical) })
+      .eq('id', userId);
+  } catch {
+    // no-op
+  }
+}
+
 export async function signInWithEmail(email: string, password: string, portal: AuthPortal, nextPath?: string | null) {
   const supabase = await createClient();
 
@@ -151,19 +204,19 @@ export async function signInWithEmail(email: string, password: string, portal: A
     return { error: 'Gagal membaca data akun.' };
   }
 
-  const metadataRole = resolveRoleCandidate(
-    data.user.user_metadata,
+  const appMetadataRole = resolveRoleCandidate(
     data.user.app_metadata,
-    data.user.user_metadata?.role,
     data.user.app_metadata?.role,
     data.user.app_metadata?.user_role
   );
+  const userMetadataRole = resolveRoleCandidate(data.user.user_metadata, data.user.user_metadata?.role);
 
   // Ensure profile exists
-  await ensureProfileExists(data.user.id, email, metadataRole);
+  await ensureProfileExists(data.user.id, email, appMetadataRole ?? userMetadataRole);
+  await syncPrivilegedProfileRole(data.user.id, appMetadataRole);
 
   const profileRole = await getProfileRole(data.user.id);
-  const role = resolveRoleCandidate(profileRole, metadataRole);
+  const role = resolveEffectiveRole(profileRole, appMetadataRole, userMetadataRole);
   const portalError = getPortalAccessError(portal, role);
 
   if (portalError) {

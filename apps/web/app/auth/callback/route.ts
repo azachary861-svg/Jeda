@@ -71,6 +71,30 @@ function resolveRoleCandidate(...values: Array<unknown>) {
   return null;
 }
 
+function resolveEffectiveRole(
+  profileRole: string | null,
+  appMetadataRole: string | null,
+  userMetadataRole: string | null
+) {
+  const profileCanonical = canonicalizeRole(profileRole);
+  const appCanonical = canonicalizeRole(appMetadataRole);
+  const userCanonical = canonicalizeRole(userMetadataRole);
+
+  if (profileCanonical && (isAdminRole(profileCanonical) || isDriverRole(profileCanonical))) {
+    return profileCanonical;
+  }
+
+  if (appCanonical && (isAdminRole(appCanonical) || isDriverRole(appCanonical))) {
+    return appCanonical;
+  }
+
+  if (profileCanonical) {
+    return profileCanonical;
+  }
+
+  return appCanonical ?? userCanonical;
+}
+
 function toProfileRole(role: string | null): 'super_admin' | 'regional_admin' | 'driver' | 'client' {
   const canonical = canonicalizeRole(role);
 
@@ -131,13 +155,12 @@ export async function GET(request: Request) {
           return NextResponse.redirect(loginUrl);
         }
 
-        const metadataRole = resolveRoleCandidate(
-          user.user_metadata,
+        const appMetadataRole = resolveRoleCandidate(
           user.app_metadata,
-          user.user_metadata?.role,
           user.app_metadata?.role,
           user.app_metadata?.user_role
         );
+        const userMetadataRole = resolveRoleCandidate(user.user_metadata, user.user_metadata?.role);
 
         // Ensure profile exists
         const { data: existingProfile } = await supabase
@@ -151,7 +174,7 @@ export async function GET(request: Request) {
             id: user.id,
             email: user.email || 'unknown@example.com',
             full_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
-            role: toProfileRole(metadataRole),
+            role: toProfileRole(appMetadataRole ?? userMetadataRole),
           };
 
           const { error: insertError } = await supabase.from('profiles').insert(payload);
@@ -165,13 +188,26 @@ export async function GET(request: Request) {
           }
         }
 
+        const appCanonical = canonicalizeRole(appMetadataRole);
+        if (appCanonical && (isAdminRole(appCanonical) || isDriverRole(appCanonical))) {
+          try {
+            const adminSupabase = createAdminClient();
+            await adminSupabase
+              .from('profiles')
+              .update({ role: toProfileRole(appCanonical) })
+              .eq('id', user.id);
+          } catch {
+            // no-op
+          }
+        }
+
         const { data: profile } = await supabase
           .from('profiles')
           .select('role')
           .eq('id', user.id)
           .maybeSingle();
 
-        const role = resolveRoleCandidate(profile?.role, metadataRole);
+        const role = resolveEffectiveRole(profile?.role ?? null, appMetadataRole, userMetadataRole);
         const portalError = getPortalAccessError(portal, role);
 
         if (portalError) {
